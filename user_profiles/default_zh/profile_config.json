@@ -1,0 +1,67 @@
+{
+  "schema_version": "voice_profile_v2",
+  "profile_name": "default_zh",
+  "display_name": "Resonastra 中文基础模型",
+  "description": "Resonastra 默认中文 zero-shot 基础模型。默认使用 GPT-SoVITS v2 Stage1 和 Stage2 v6.5。",
+  "language": "zh",
+  "profile_type": "base_zeroshot",
+  "fallback_profile": "default_zh",
+  "built_in": true,
+  "read_only": true,
+  "deletable": false,
+  "stage1": {
+    "mode": "default_checkpoint",
+    "checkpoint_path": null,
+    "fallback_profile": "default_zh",
+    "display_name": "默认文本转语义模型",
+    "description": "使用 GPT-SoVITS v2 默认 Stage1 checkpoint。"
+  },
+  "stage2": {
+    "mode": "few_shot_checkpoint",
+    "model_family": "voicelab_stage2_v65_zh_base",
+    "checkpoint_path": "stage2/best_model.pt",
+    "fallback_profile": "default_zh",
+    "source_checkpoint": "outputs/stage2_checkpoints_v65_100h_scratch_oracle_continuous_native_text_coarse_only_35e/best_model.pt",
+    "display_name": "默认声学生成模型",
+    "description": "Resonastra 默认中文 Stage2 声学生成模型。",
+    "acoustic_generation_mode": "standard",
+    "internal_sampling_mode": "coarse_only"
+  },
+  "vocoder": {
+    "type": "hifigan",
+    "profile": "universal_v1",
+    "display_name": "HiFi-GAN 默认声码器"
+  },
+  "capabilities": {
+    "supports_zero_shot": true,
+    "supports_partial_few_shot": true,
+    "supports_few_shot_checkpoint_override": true,
+    "supports_training": false,
+    "language": ["zh"],
+    "offline": true,
+    "ready_for_inference": true
+  },
+  "ui": {
+    "show_stage1_checkpoint_picker": true,
+    "show_stage2_checkpoint_picker": true,
+    "show_advanced_sampling": true,
+    "show_language_selector": false,
+    "show_vocoder_selector": false,
+    "show_developer_debug_options": false,
+    "show_force_default_stage_controls": true
+  },
+  "user_facing_names": {
+    "stage1": "文本转语义模型",
+    "stage2": "声学生成模型",
+    "temperature": "temperature",
+    "top_p": "top_p",
+    "top_k": "top_k",
+    "acoustic_generation_mode": "标准声学生成"
+  },
+  "internal_notes": {
+    "stage2_internal_sampling_mode": "coarse_only",
+    "residual_refiner_exposed_to_user": false,
+    "bootstrapper_terms_exposed_to_user": false,
+    "developer_ab_compare_exposed_to_user": false
+  }
+}

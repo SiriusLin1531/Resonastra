@@ -1,0 +1,77 @@
+schema_version: voicelab_training_default_config_v1
+
+# ============================================================
+# VoiceLab user training defaults
+# VoiceLab 用户版训练默认参数
+#
+# These values come from validated Stage1 / Stage2 few-shot training runs.
+# Path arguments are intentionally not stored here. Paths are resolved from
+# work_dir/training_interface.json by TrainingService.
+#
+# Stage2 base_ckpt is also intentionally not user-configurable here.
+# TrainingService enforces the project-relative path:
+# user_profiles/default_zh/stage2/best_model.pt
+# ============================================================
+
+stage1:
+  device: cuda
+  use_amp: true
+  epochs: 10
+  batch_size: 1
+  lr: 1e-5
+  weight_decay: 1e-6
+  grad_clip: 1.0
+  trainable_scope: head_and_last_n
+  last_n_layers: 4
+  log_every_steps: 20
+
+stage2:
+  device: cuda
+  epochs: 20
+  batch_size: 1
+  lr: 5e-6
+  num_workers: 0
+  use_amp: true
+  trainable_scope: reference_style_plus_lora_plus_attention_lora_plus_aux
+
+  include_continuous_semantic: true
+  require_continuous_semantic: true
+
+  include_v66_style_fields: true
+  require_v66_style_fields: true
+
+  use_reference_acoustic_style: true
+  reference_style_fusion_mode: gated_add
+  reference_style_gate_init: -3.0
+
+  use_v66_energy_loss: true
+  v66_energy_loss_weight: 0.15
+
+  use_v66_f0_loss: true
+  v66_f0_loss_weight: 0.05
+
+  use_v66_speaker_loss: true
+  v66_speaker_loss_weight: 0.03
+  v66_speaker_embedding_dim: 192
+  v66_require_aux_targets: true
+
+  use_bootstrapper_lora: true
+  bootstrapper_lora_rank: 4
+  bootstrapper_lora_alpha: 8.0
+  bootstrapper_lora_dropout: 0.05
+  bootstrapper_lora_target: core
+  bootstrapper_lora_init_scale: 0.01
+
+  use_bootstrapper_attention_lora: true
+  bootstrapper_attention_lora_rank: 4
+  bootstrapper_attention_lora_alpha: 8.0
+  bootstrapper_attention_lora_dropout: 0.05
+  bootstrapper_attention_lora_target: cross_only
+  bootstrapper_attention_lora_gate_init: -3.0
+  bootstrapper_attention_lora_enable_q: true
+  bootstrapper_attention_lora_enable_k: true
+  bootstrapper_attention_lora_enable_v: true
+  bootstrapper_attention_lora_enable_o: true
+
+  load_strict: false
+  force_v65_coarse_only_defaults: true

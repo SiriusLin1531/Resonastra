@@ -1,0 +1,75 @@
+schema_version: "voicelab_data_factory_config_v1"
+
+paths:
+  # Default user data root.
+  # 默认用户数据目录。
+  default_user_data_root: "user_data"
+
+  # If work_dir is empty, UI/service may suggest:
+  #   user_data/{speaker_name}_factory
+  #
+  # 如果 work_dir 为空，UI/service 可建议：
+  #   user_data/{speaker_name}_factory
+  work_dir_pattern: "{speaker_name}_factory"
+
+dataset:
+  language: "zh"
+
+asr:
+  # Keep aligned with scripts/prepare_fewshot_dataset.py for P10-1.
+  # P10-1 先保持与现有脚本默认值一致。
+  backend: "auto"
+  model_size: "large-v3"
+  precision: "float32"
+
+preprocess:
+  # Current src.data_factory.cli.build_dataset has UVR / denoise placeholders,
+  # but they still raise NotImplementedError when enabled.
+  #
+  # 当前底层 build_dataset 中 UVR / denoise 仍是占位功能，
+  # 启用会抛 NotImplementedError，因此用户版默认关闭。
+  enable_uvr: false
+  enable_denoise: false
+
+slice:
+  threshold: -34
+  min_length: 4000
+  min_interval: 300
+  hop_size: 10
+  max_sil_kept: 500
+  normalize_max: 0.9
+  alpha_mix: 0.25
+
+export:
+  export_list: true
+  export_stage2_manifest: true
+
+  # Used by scripts/export_fewshot_stage2_manifest.py.
+  # 用于后续 few-shot stage2 manifest 导出。
+  prompt_mode: "speaker_pool"
+  min_prompt_sec: 3.0
+  max_prompt_sec: 10.0
+  prefer_prompt_sec: 6.0
+  allow_self_prompt: true
+
+health:
+  min_samples_pass: 20
+  min_samples_warn: 10
+  min_total_duration_sec_pass: 60.0
+  min_total_duration_sec_warn: 30.0
+  min_clip_sec_fail: 0.8
+  min_clip_sec_warn: 2.0
+  max_clip_sec_warn: 12.0
+  max_clip_sec_fail: 30.0
+  min_prompt_sec: 3.0
+  max_prompt_sec: 10.0
+
+runtime:
+  overwrite_work_dir: false
+  dry_run: false
+
+  # Data factory may include slicing and ASR, so keep timeout much longer
+  # than inference UI.
+  #
+  # 数据工厂可能包含切分和 ASR，因此默认 timeout 应明显长于推理 UI。
+  timeout_seconds: 7200

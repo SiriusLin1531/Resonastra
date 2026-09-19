@@ -1,0 +1,71 @@
+schema_version: "user_inference_default_v1"
+
+language:
+  default: "zh"
+  supported:
+    - "zh"
+
+profile:
+  default_profile_dir: "user_profiles/default_zh"
+
+stage1:
+  # null means: use GPT-SoVITS v2 default Stage1 from src/adapters/gsv_env.py
+  checkpoint_path: null
+  temperature: 1.0
+  top_p: 1.0
+  top_k: 15
+  repetition_penalty: 1.35
+  early_stop_num: -1
+  text_mode: "prompt_plus_target"
+  prompt_target_separator: ""
+  crop_prompt_prefix: true
+  crop_mode: "auto_idx"
+  append_tail_mute_tokens: 8
+  mute_token_id: 486
+
+stage2:
+  checkpoint_path: "user_profiles/default_zh/stage2/best_model.pt"
+  acoustic_generation_mode: "standard"
+  internal_sampling_mode: "coarse_only"
+  target_length_mode: "semantic_ratio"
+  length_scale: 1.0
+  attach_continuous_semantic: true
+  require_continuous_semantic: true
+  continuous_dtype: "float32"
+
+vocoder:
+  type: "hifigan"
+  profile: "universal_v1"
+  hifigan_root: "third_party/hifi-gan"
+  checkpoint_path: null
+  config_path: null
+
+output:
+  root: "outputs/inference_runs"
+  save_peaknorm: true
+  copy_prompt_wav: true
+  save_debug_tensors: false
+
+metrics:
+  enable_metrics: false
+
+  compute_dnsmos: true
+  dnsmos_onnx_path: "dnsmos/pretrained_models/sig_bak_ovr.onnx"
+
+  compute_speaker_sim: true
+
+  # IF-UI-5-3-WER: bundled offline ASR freeze.
+  # The User Edition no longer uses the logical model name "medium" here.
+  # Instead, faster-whisper receives this project-local CTranslate2 model
+  # directory. The model asset is part of the offline package and is not
+  # committed to GitHub because of its size.
+  compute_wer: false
+  asr_backend: "faster_whisper"
+  asr_model: "pretrained_models/faster_whisper_medium"
+  asr_device: "cpu"
+  asr_compute_type: "int8"
+
+runtime:
+  device: "cuda"
+  fallback_to_cpu: true
+  seed: null
