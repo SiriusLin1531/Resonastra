@@ -52,15 +52,14 @@ See GitHub Releases for release history and previous versions.
 
 ## Quick Start
 
+Resonastra supports both **Zero-shot** (no user training) and **Few-shot** (adaptation with your own speech data).
+
 1. Download and extract `Resonastra_v1.0.0.zip`.
 2. Run `launch_check_env.bat` to check the environment.
-3. Run `launch_data_factory_ui.bat` to prepare training data.
-4. Run `launch_training_ui.bat` to train Stage1 / Stage2.
-5. Run `launch_infer_ui.bat` to generate speech.
+3. For the fastest first run, launch `launch_infer_ui.bat` and use the bundled Zero-shot profile.
+4. For personalized training, continue through DataFactory and Training before returning to Inference.
 
-For first-time use, run the environment check before proceeding through DataFactory, Training, and Inference in order.
-
-A complete walkthrough will be provided in the standalone Quick Start guide.
+See the complete [Quick Start guide](./docs/en/quick-start.md) for route selection, first-run requirements, and the full workflow.
 
 ## Workflow
 
@@ -125,7 +124,7 @@ Compatibility with other new GPU architectures likewise depends on the CUDA and 
 
 The README provides the main entry points. Full documentation will be organized by function:
 
-- **Quick Start** — From download to first speech generation
+- [**Quick Start**](./docs/en/quick-start.md) — From download to first speech generation
 - **DataFactory** — Data preparation, ASR, and transcript proofreading
 - **Training** — Stage1 / Stage2 training workflow
 - **Inference** — Voice Profiles and speech generation
