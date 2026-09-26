@@ -125,7 +125,7 @@ CUDA Toolkit 从 12.8 开始加入 `sm_120` 编译支持，PyTorch 从 2.7 开�
 README 仅提供快速入口，完整文档将按功能拆分：
 
 - [**快速开始**](./quick-start.md) — 从下载到第一次生成语音
-- **DataFactory** — 数据准备、ASR 与文本校对
+- [**DataFactory**](./data-factory.md) — 数据准备、ASR 与文本校对
 - **Training** — Stage1 / Stage2 训练流程
 - **Inference** — 声音配置与语音生成
 - **兼容性说明** — GPU、CUDA 与运行环境

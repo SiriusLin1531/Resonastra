@@ -125,7 +125,7 @@ Compatibility with other new GPU architectures likewise depends on the CUDA and 
 The README provides the main entry points. Full documentation will be organized by function:
 
 - [**Quick Start**](./docs/en/quick-start.md) — From download to first speech generation
-- **DataFactory** — Data preparation, ASR, and transcript proofreading
+- [**DataFactory**](./docs/en/data-factory.md) — Data preparation, ASR, and transcript proofreading
 - **Training** — Stage1 / Stage2 training workflow
 - **Inference** — Voice Profiles and speech generation
 - **Compatibility** — GPU, CUDA, and runtime environment
