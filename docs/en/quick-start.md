@@ -248,6 +248,13 @@ For a first run, use the simplest local-directory workflow:
 - **`说话人 / 角色名`** ("Speaker / Character Name"): enter a name for this voice
 - **`语言`** ("Language"): keep `zh`
 
+> [!NOTE]
+> **`原始音频来源`** ("Raw Audio Source") also provides `上传音频文件` ("Upload Audio Files") and `上传音频文件夹` ("Upload Audio Folder"). These modes let you choose local audio files or a whole folder through the file picker. For larger datasets, `本地目录路径` remains the recommended route; the upload entries are better suited to small samples or test data.
+>
+> DataFactory v1.0.0 officially recognizes these raw-audio extensions: `WAV / MP3 / FLAC / OGG / M4A / AAC / WMA / OPUS`. You do not need to convert supported source files to WAV in advance. DataFactory performs decoding and normalization as part of its preparation pipeline before the downstream dataset steps.
+>
+> For higher-quality training data, good-quality `WAV` or `FLAC` source recordings are preferred. Lossy formats such as MP3 or AAC are also supported, but information already lost during lossy compression is not restored when the audio is later written as WAV. A supported file extension also does not guarantee that every codec variant or damaged file can be decoded successfully; the detailed input boundaries will be covered in the DataFactory guide.
+
 For example, if you enter:
 
 ```text
