@@ -58,9 +58,9 @@ DataFactory does not train the models themselves. DataFactory is complete when *
 | Route | DataFactory Required? | What DataFactory Must Complete |
 | --- | --- | --- |
 | Zero-shot | No | None |
-| Stage1-only Few-shot | Yes | Prepare + transcript confirmation + Stage1 data |
-| Stage2-only Few-shot | Yes | Prepare + transcript confirmation + Stage2 data |
-| Full Few-shot | Yes | Prepare + transcript confirmation + Stage1 + Stage2 data |
+| Stage1-only Few-shot | Yes | data preparation + transcript confirmation + Stage1 data |
+| Stage2-only Few-shot | Yes | data preparation + transcript confirmation + Stage2 data |
+| Full Few-shot | Yes | data preparation + transcript confirmation + Stage1 + Stage2 data |
 
 > [!IMPORTANT]
 > Stage1 and Stage2 data can be generated independently. Do not treat "both Stage1 and Stage2 complete" as a universal completion requirement for every Few-shot route.
@@ -125,7 +125,7 @@ If `7861` is already in use, the launcher automatically selects another availabl
 The v1.0.0 DataFactory page is organized into:
 
 - **`基础输入`** ("Basic Input") — raw-audio source, speaker / character name, language, and work directory;
-- **`执行流程`** ("Execution Flow") — Prepare, proofreading, Stage1, and Stage2;
+- **`执行流程`** ("Execution Flow") — data preparation, proofreading, Stage1, and Stage2;
 - **`设置`** ("Settings") — common and advanced settings;
 - **recommended actions / data status** — what the current project should do next;
 - **`当前任务`** ("Current Task") — long-running tasks and Stage2 sub-step status;
@@ -136,7 +136,7 @@ For a first run, you do not need to expand every advanced setting. Use the defau
 
 ### 4.2 Main Launcher Terminal vs. Progress Terminal
 
-The **`显示终端进度窗口`** ("Show Terminal Progress Window") option is enabled by default. Long-running Prepare, Stage1, or Stage2 tasks may open an additional log terminal.
+The **`显示终端进度窗口`** ("Show Terminal Progress Window") option is enabled by default. Long-running data-preparation, Stage1, or Stage2 tasks may open an additional log terminal.
 
 | Window | Purpose | Can You Close It? |
 | --- | --- | --- |
@@ -284,7 +284,7 @@ If you disable this option, uploading a file whose name already exists causes Da
 
 ### 5.6 Common Raw-Input Failure Boundaries
 
-Before or during Prepare, failures can occur when:
+Before or during data preparation, failures can occur when:
 
 - the local directory does not exist;
 - the directory contains no audio with a supported extension;
@@ -360,7 +360,7 @@ After entering an existing work directory or speaker name, click:
 
 DataFactory rescans existing artifacts and refreshes:
 
-- whether Prepare is complete;
+- whether data preparation is complete;
 - whether transcript confirmation is complete;
 - whether Stage1 data is complete;
 - whether each Stage2 sub-step is complete;
@@ -404,7 +404,7 @@ Important Stage1 / Stage2 files appear here:
 | File / Directory | User-Level Meaning |
 | --- | --- |
 | `clips/` | normalized and sliced training audio |
-| `manifest.jsonl` | base manifest after Prepare |
+| `manifest.jsonl` | base manifest after data preparation |
 | `dataset.list` | list used by Stage1 data-building and related steps |
 | `stage2_manifest.jsonl` | base Stage2 manifest |
 | `manifest.corrected.jsonl` | primary corrected manifest after transcript confirmation |
@@ -414,7 +414,7 @@ Important Stage1 / Stage2 files appear here:
 Health, prompt-selection, conversion, and other reports also appear in this area.
 
 > [!NOTE]
-> Prepare already generates the initial `stage2_manifest.jsonl` and runs its corresponding health check, but this **does not mean Stage2 training data is complete**. After transcript confirmation, formal Stage2 Few-shot postprocessing creates `stage2_manifest.fewshot.jsonl` from `manifest.corrected.jsonl`, then builds Stage2 `.pt`, caches, train / val data, and filter reports.
+> Data preparation already generates the initial `stage2_manifest.jsonl` and runs its corresponding health check, but this **does not mean Stage2 training data is complete**. After transcript confirmation, formal Stage2 Few-shot postprocessing creates `stage2_manifest.fewshot.jsonl` from `manifest.corrected.jsonl`, then builds Stage2 `.pt`, caches, train / val data, and filter reports.
 
 ### 7.3 Stage1 Data Directory
 
@@ -501,7 +501,7 @@ This causes DataFactory to use:
 user_data/Character_A_factory
 ```
 
-### 8.2 What Prepare Actually Does
+### 8.2 What Data Preparation Actually Does
 
 A single **`开始准备数据`** operation runs a sequence of steps:
 
@@ -544,9 +544,9 @@ At runtime, these models are not downloaded from ModelScope or Hugging Face, and
 
 If the local model assets are missing, inspect the release package or environment rather than waiting for the program to download them.
 
-### 8.4 Prepare Success Condition
+### 8.4 Data-Preparation Success Condition
 
-After Prepare finishes, the user-facing Audio Processing stage should report:
+After data preparation finishes, the user-facing Audio Processing stage should report:
 
 ```text
 音频处理与基础识别产物已就绪。
@@ -563,9 +563,9 @@ A work-directory scan should at minimum detect:
 
 You can then move to transcript confirmation.
 
-### 8.5 If Prepare Fails, Check the Existing State First
+### 8.5 If Data Preparation Fails, Check the Existing State First
 
-If Prepare fails or is interrupted, do not immediately delete the entire work directory.
+If data preparation fails or is interrupted, do not immediately delete the entire work directory.
 
 Use this order:
 
@@ -666,7 +666,7 @@ The key artifact is:
 
 In the normal user workflow, both Stage1 and Stage2 should follow transcript confirmation, but the two data-building paths do not read exactly the same file:
 
-- the **Stage1** builder reads `06_export/dataset.list`; the proofreader edits this list directly, while `无需校对，继续` means accepting its current contents;
+- the **Stage1** data-building path reads `06_export/dataset.list`; the proofreader edits this list directly, while `无需校对，继续` means accepting its current contents;
 - formal **Stage2** postprocessing explicitly requires `06_export/manifest.corrected.jsonl` and will not start without it.
 
 ---
@@ -711,7 +711,7 @@ The validation ratio automatically uses:
 1 - train_ratio
 ```
 
-Normal users do not enter the Stage1 split seed manually. The builder generates an effective seed and records it in:
+Normal users do not enter the Stage1 split seed manually. The system generates an effective seed and records it in:
 
 ```text
 07_stage1_ft/metadata/split.json
@@ -726,7 +726,7 @@ If the current work directory already contains Stage1 training data or cache fil
 > [!WARNING]
 > **`覆盖已有 Stage1 cache`** ("Overwrite Existing Stage1 Cache") is an explicit rebuild operation. Enable it only when you have decided to rebuild the existing Stage1 data.
 
-Stage1 and Stage2 use different recovery models. **Stage1 does not provide an artifact-based Resume button.** If any file already exists under `07_stage1_ft/`—including partial output from a failed or interrupted build—clicking **Generate Stage1 Training Data** again without overwrite authorization is blocked before the builder starts.
+Stage1 and Stage2 use different recovery models. **Stage1 does not provide an artifact-based Resume button.** If any file already exists under `07_stage1_ft/`—including partial output from a failed or interrupted build—clicking **Generate Stage1 Training Data** again without overwrite authorization is blocked before a new Stage1 build starts.
 
 Therefore:
 
@@ -978,7 +978,7 @@ The **`当前任务`** ("Current Task") area on the right side shows the current
 
 During long-running tasks, the page also refreshes task state automatically at a fixed interval.
 
-While Stage2 is running, the Live Monitor shows sub-step status without requiring you to wait for the entire callback to finish.
+While Stage2 is running, the Live Monitor shows sub-step status without requiring you to wait for the entire task to finish.
 
 ### 13.3 How to Read Status
 
@@ -1028,7 +1028,7 @@ Use these fields to identify the failed step and confirm the actual paths.
 ### 14.1 Stage1-only Few-shot
 
 ```text
-Prepare
+Data Preparation
   ↓
 Transcript Confirmation
   ↓
@@ -1039,7 +1039,7 @@ Training
 
 Checklist:
 
-- [ ] Prepare is complete.
+- [ ] Data preparation is complete.
 - [ ] `manifest.corrected.jsonl` is ready.
 - [ ] Stage1 training data is complete.
 - [ ] the `07_stage1_ft/` build report / manifests / caches pass the status scan.
@@ -1049,7 +1049,7 @@ Stage2 data is not required.
 ### 14.2 Stage2-only Few-shot
 
 ```text
-Prepare
+Data Preparation
   ↓
 Transcript Confirmation
   ↓
@@ -1060,7 +1060,7 @@ Training
 
 Checklist:
 
-- [ ] Prepare is complete.
+- [ ] Data preparation is complete.
 - [ ] `manifest.corrected.jsonl` is ready.
 - [ ] Stage2 Few-shot manifest is complete.
 - [ ] Stage2 `.pt` is complete.
@@ -1073,7 +1073,7 @@ Stage1 data is not required.
 ### 14.3 Full Few-shot
 
 ```text
-Prepare
+Data Preparation
   ↓
 Transcript Confirmation
   ├─→ Stage1 Data
@@ -1092,7 +1092,7 @@ Stage1 与 Stage2 数据均已完成。
 
 Checklist:
 
-- [ ] Prepare is complete.
+- [ ] Data preparation is complete.
 - [ ] transcript confirmation is complete.
 - [ ] Stage1 data is ready.
 - [ ] Stage2 data is ready.
@@ -1107,7 +1107,7 @@ For your first successful DataFactory run, use the defaults whenever possible. C
 
 | UI Setting | Default | Purpose |
 | --- | ---: | --- |
-| `覆盖已有数据工厂工作目录` ("Overwrite Existing DataFactory Work Directory") | Off | allows Prepare to perform overwrite behavior on an existing work directory |
+| `覆盖已有数据工厂工作目录` ("Overwrite Existing DataFactory Work Directory") | Off | allows data preparation to perform overwrite behavior on an existing work directory |
 | `覆盖已上传音频缓存` ("Overwrite Uploaded Audio Cache") | On | clears `00_uploaded_raw_audio/` before a new upload |
 | `单步超时秒数，0 表示不限制` ("Per-Step Timeout in Seconds, 0 Means No Limit") | `0` | v1.0.0 does not normalize `0` identically across every execution path; see below |
 | Stage1 `train_ratio` | `0.90` | Stage1 train / val split ratio |
@@ -1115,7 +1115,7 @@ For your first successful DataFactory run, use the defaults whenever possible. C
 | `显示终端进度窗口` ("Show Terminal Progress Window") | On | opens an additional read-only log terminal for long-running tasks |
 
 > [!NOTE]
-> The v1.0.0 UI label says that `0` means "no limit," but the actual execution paths contain a release-specific difference. Stage1 / Stage2 normalize `0` to "no explicit timeout," while Prepare falls back to an internal `7200`-second (2-hour) default. If you expect Prepare to take longer than 2 hours, explicitly enter a larger positive number of seconds instead of relying on `0` for unlimited runtime.
+> The v1.0.0 UI label says that `0` means "no limit," but the actual execution paths contain a release-path difference. Stage1 / Stage2 normalize `0` to "no explicit timeout," while the data-preparation path falls back to an internal `7200`-second (2-hour) default. If you expect data preparation to take longer than 2 hours, explicitly enter a larger positive number of seconds instead of relying on `0` for unlimited runtime.
 
 > [!WARNING]
 > Do not enable multiple overwrite options without understanding the existing work directory. For normal project recovery, first use `载入/扫描工作目录`; use Stage2 Resume for Stage2, while partial Stage1 output follows the overwrite-protection behavior in Section 10.3.
@@ -1133,7 +1133,7 @@ language: zh
 
 `auto` resolves to local FunASR.
 
-In the final v1.0.0 release shell, **`ASR 后端`** ("ASR Backend"), **`ASR 模型大小`** ("ASR Model Size"), and **`ASR 精度`** ("ASR Precision") are locked and non-editable. **`语言`** ("Language") exposes only `zh`. These are not normal user-selectable alternatives.
+In the final v1.0.0 release UI, **`ASR 后端`** ("ASR Backend"), **`ASR 模型大小`** ("ASR Model Size"), and **`ASR 精度`** ("ASR Precision") are locked and non-editable. **`语言`** ("Language") exposes only `zh`. These are not normal user-selectable alternatives.
 
 ### 15.3 Audio-Slicing Parameters
 
@@ -1216,7 +1216,7 @@ These values directly affect Stage2 `.pt`, mel, F0, and related feature construc
 | `校对器端口` ("Proofreader Port") | `9871` | manual-proofreading WebUI port |
 | `g_batch` | `10` | proofreader batch setting |
 | `覆盖已有校对备份` ("Overwrite Existing Proofreading Backup") | Off | whether to replace an existing proofreading backup |
-| corrected-manifest duration tolerance | `0.05` | duration-match tolerance while rebuilding corrected manifests |
+| `重建 corrected manifest 时长容差` ("Rebuild Corrected Manifest Duration Tolerance") | `0.05` | duration-match tolerance while rebuilding corrected manifests |
 | `重建超时秒数` ("Rebuild Timeout in Seconds") | `600` | timeout for the post-proofreading rebuild step |
 
 Most users only need to change the proofreader port if the default port is already occupied.

@@ -27,10 +27,10 @@
                                            ↓
                                       Inference
                                            ↓
-                                      Generated Audio
+                                      生成音频
 ```
 
-本指南使用正常用户流程和默认设置。数据质量、训练参数、checkpoint 管理、GPU / CUDA 兼容性和详细故障排查将在独立文档中说明。
+本指南使用正常用户流程和默认设置。数据质量、训练参数、模型检查点管理、GPU / CUDA 兼容性和详细故障排查将在独立文档中说明。
 
 ---
 
@@ -66,7 +66,7 @@ v1.0.0 的 DataFactory 当前只开放中文 `zh` 数据准备流程。
 这些属于训练数据质量建议，而不是 DataFactory 的强制输入限制。
 
 > [!IMPORTANT]
-> Resonastra v1.0.0 集成的运行环境为 Python 3.10.20、PyTorch 2.5.1 和 CUDA Runtime 11.8。环境检查通过并不代表所有新架构 GPU 都已经通过实际 CUDA kernel 验证。如果你使用 RTX 50 系列等新架构 GPU，请先阅读[项目 README](https://github.com/SiriusLin1531/Resonastra/blob/main/docs/cn/README.md)中的兼容性说明。
+> Resonastra v1.0.0 集成的运行环境为 Python 3.10.20、PyTorch 2.5.1 和 CUDA Runtime 11.8。环境检查通过并不代表所有新架构 GPU 都已经通过实际 CUDA 内核验证。如果你使用 RTX 50 系列等新架构 GPU，请先阅读[项目 README](https://github.com/SiriusLin1531/Resonastra/blob/main/docs/cn/README.md)中的兼容性说明。
 
 ---
 
@@ -124,8 +124,8 @@ launch_check_env.bat
 环境检查会验证 v1.0.0 正常运行所需的主要本地组件，包括：
 
 - Microsoft Visual C++ v14 x64 Redistributable
-- Resonastra bundled runtime
-- 必要 Python packages
+- Resonastra 内置运行环境
+- 必要 Python 软件包
 - 默认配置
 - 默认模型资产
 
@@ -154,7 +154,7 @@ logs/check_user_env_report.json
 用于记录本次检查结果。
 
 > [!NOTE]
-> 当前环境检查主要验证 runtime、依赖、配置和模型资产，不会实际执行 CUDA kernel 来验证 GPU compute capability。
+> 当前环境检查主要验证 runtime、依赖、配置和模型资产，不会实际执行 CUDA 内核来验证 GPU 计算能力。
 
 如果环境检查显示 `[FAIL]`，先根据终端中的具体提示处理问题，再继续后续步骤。
 
@@ -433,7 +433,7 @@ launch_training_ui.bat
 | Stage2-only | Stage2 数据 | Stage2 Training |
 | Full Few-shot | Stage1 + Stage2 数据 | Stage1 + Stage2 Training |
 
-Partial Few-shot 不要求“完整训练数据”整体状态为已就绪；只需要本路线实际使用的阶段通过入口检查。
+部分 Few-shot 路线不要求“完整训练数据”整体状态为已就绪；只需要本路线实际使用的阶段通过入口检查。
 
 ---
 
@@ -466,7 +466,7 @@ succeeded
 stage1 训练完成：run_id=...
 ```
 
-正常训练成功并产生最佳 checkpoint 后，Training worker 会自动注册本轮 Trainer Best；在未进行手动 Active Best 锁定的首次使用流程中，它会更新 Stage1 Active Best。
+正常训练成功并产生 Trainer Best 后，如果当前没有手动锁定 Active Best，系统会自动更新 Stage1 Active Best。
 
 ---
 
@@ -499,13 +499,13 @@ succeeded
 stage2 训练完成：run_id=...
 ```
 
-正常训练成功并产生最佳 checkpoint 后，本轮 Trainer Best 会在未进行手动 Active Best 锁定的首次使用流程中更新 Stage2 Active Best。
+正常训练成功并产生 Trainer Best 后，如果当前没有手动锁定 Active Best，系统会自动更新 Stage2 Active Best。
 
 > [!IMPORTANT]
 > Stage2 的数据准备与训练是 Few-shot 路线中主要的时间成本。由于 Stage1 的整体耗时显著更短，如果你已经完成或准备进行 Stage2 Training，通常更推荐同时完成 Stage1，形成 Full Few-shot，而不是仅为了节省时间选择 Stage2-only。
 
 > [!NOTE]
-> Training UI 还提供手动 Active Best、Automatic Best、checkpoint 删除等训练管理功能。第一次跑通流程不需要使用这些功能。
+> Training UI 还提供手动 Active Best、Automatic Best、模型检查点删除等训练管理功能。第一次跑通流程不需要使用这些功能。
 
 ---
 
@@ -621,7 +621,7 @@ http://127.0.0.1:7860
 
 ### 8.1 选择声音角色
 
-在 **1. 选择声音角色** 中选择对应的 Profile。
+在 **1. 选择声音角色** 中选择对应的 Voice Profile。
 
 #### Zero-shot
 
@@ -631,7 +631,7 @@ http://127.0.0.1:7860
 default_zh
 ```
 
-其 Profile 类型为：
+其 Voice Profile 类型为：
 
 ```text
 base_zeroshot
@@ -668,7 +668,7 @@ base_zeroshot
 3–10 秒
 ```
 
-当前 v1.0.0 的正式 prompt 提取路径会严格检查参考音频长度；低于 3 秒或高于 10 秒会直接拒绝推理。
+当前 v1.0.0 的正式参考音频提取路径会严格检查参考音频长度；低于 3 秒或高于 10 秒会直接拒绝推理。
 
 参考文本应尽量与参考音频中实际说出的文字一致。
 
@@ -678,7 +678,7 @@ base_zeroshot
 欢迎使用 Resonastra。
 ```
 
-那么 Prompt Text 也应填写对应内容。
+那么参考文本也应填写对应内容。
 
 ---
 
@@ -724,9 +724,9 @@ Quick Start 不要求开启这些指标。
 确认：
 
 - 已选择可用于生成的 Voice Profile
-- 已添加 Prompt WAV
-- 已填写 Prompt Text
-- 已填写 Target Text
+- 已添加参考音频
+- 已填写参考文本
+- 已填写目标文本
 
 点击：
 
@@ -765,7 +765,7 @@ Quick Start 不要求开启这些指标。
 outputs/inference_runs/
 ```
 
-如果没有指定自定义输出目录，每次推理会创建独立 run 目录。
+如果没有指定自定义输出目录，每次推理会创建独立的生成任务目录。
 
 ---
 
@@ -777,9 +777,9 @@ outputs/inference_runs/
 
 - [ ] `launch_check_env.bat` 环境检查通过
 - [ ] Inference 中选择 `default_zh`
-- [ ] Profile 可用于生成
+- [ ] Voice Profile 可用于生成
 - [ ] Inference 显示 `生成完成`
-- [ ] 已试听 Generated Audio
+- [ ] 已试听生成音频
 
 ### Stage1-only Few-shot
 
@@ -831,7 +831,7 @@ outputs/inference_runs/
 后续文档将进一步说明：
 
 - **DataFactory** — 数据准备、ASR、人工校对与 Stage1 / Stage2 数据处理
-- **Training** — 训练参数、Live Monitor、checkpoint 与 Active Best
+- **Training** — 训练参数、实时监控、模型检查点与 Active Best
 - **Inference** — Voice Profile、推理参数与质量评估
 - **Compatibility** — GPU、CUDA 与运行环境
 - **Troubleshooting** — 启动、CUDA、ASR、训练与推理问题

@@ -499,7 +499,7 @@ stage1 训练完成：run_id=...
 
 ("stage1 training completed: run_id=...")
 
-After a normal successful run produces a best checkpoint, the Training worker automatically registers the Trainer Best. In a first-run workflow without a manual Active Best lock, it updates the Stage1 Active Best automatically.
+After a normal successful run produces a Trainer Best, the system automatically updates the Stage1 Active Best if Active Best is not manually locked.
 
 ---
 
@@ -536,7 +536,7 @@ stage2 训练完成：run_id=...
 
 ("stage2 training completed: run_id=...")
 
-After a normal successful run produces a best checkpoint, the Trainer Best updates the Stage2 Active Best automatically in a first-run workflow without a manual Active Best lock.
+After a normal successful run produces a Trainer Best, the system automatically updates the Stage2 Active Best if Active Best is not manually locked.
 
 > [!IMPORTANT]
 > Stage2 data preparation and training account for most of the Few-shot time cost. Because Stage1 is significantly faster overall, if you are already planning to train Stage2, Full Few-shot is usually more worthwhile than choosing Stage2-only purely to save time.
@@ -685,7 +685,7 @@ If the browser does not open automatically but the launcher terminal does not re
 
 ### 8.1 Select a Voice Profile
 
-Under **`1. 选择声音角色`** ("1. Select Voice Profile"), choose the appropriate Profile.
+Under **`1. 选择声音角色`** ("1. Select Voice Profile"), choose the appropriate Voice Profile.
 
 #### Zero-shot
 
@@ -695,13 +695,13 @@ Choose the bundled Chinese base profile:
 default_zh
 ```
 
-Its Profile type is:
+Its Voice Profile type is:
 
 ```text
 base_zeroshot
 ```
 
-This Profile uses the bundled default Stage1 and Stage2 models and does not require DataFactory or Training.
+This Voice Profile uses the bundled default Stage1 and Stage2 models and does not require DataFactory or Training.
 
 #### Few-shot
 
@@ -709,7 +709,7 @@ Choose the Voice Profile generated in Section 7.
 
 #### Success Condition
 
-The Profile summary should report:
+The Voice Profile summary should report:
 
 ```text
 可用于生成
@@ -734,9 +734,9 @@ The reference audio must be:
 3–10 seconds
 ```
 
-The formal v1.0.0 prompt-extraction path strictly checks this duration. Audio shorter than 3 seconds or longer than 10 seconds is rejected.
+The formal v1.0.0 reference-audio extraction path strictly checks this duration. Audio shorter than 3 seconds or longer than 10 seconds is rejected.
 
-The Prompt Text should match what is actually spoken in the reference audio as closely as possible.
+The reference transcript should match what is actually spoken in the reference audio as closely as possible.
 
 For example, if the reference audio says:
 
@@ -744,7 +744,7 @@ For example, if the reference audio says:
 欢迎使用 Resonastra。
 ```
 
-then the Prompt Text should contain that same spoken content.
+then the reference transcript should contain that same spoken content.
 
 ---
 
@@ -771,7 +771,7 @@ For example:
 
 ### 8.4 Keep the Default Inference Settings
 
-For a first run, you do not need to change **Advanced Options**.
+For a first run, you do not need to change **`高级选项 / Advanced Options`**.
 
 The following quality checks are disabled by default:
 
@@ -788,9 +788,9 @@ This Quick Start does not require them.
 Confirm that:
 
 - a usable Voice Profile is selected
-- Prompt WAV is provided
-- Prompt Text is filled in
-- Target Text is filled in
+- reference audio is provided
+- the reference transcript is filled in
+- the target text is filled in
 
 Then click:
 
@@ -835,7 +835,7 @@ By default, inference results are saved under:
 outputs/inference_runs/
 ```
 
-If you do not specify a custom output directory, each inference request creates a separate run directory.
+If you do not specify a custom output directory, each inference request creates a separate inference-run directory.
 
 ---
 
@@ -847,7 +847,7 @@ Only check the items that apply to your selected route.
 
 - [ ] `launch_check_env.bat` passes
 - [ ] `default_zh` is selected in Inference
-- [ ] the Profile is ready for generation
+- [ ] the Voice Profile is ready for generation
 - [ ] Inference reports `生成完成`
 - [ ] the generated audio plays successfully
 
