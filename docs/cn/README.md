@@ -127,7 +127,7 @@ README 仅提供快速入口，完整文档将按功能拆分：
 - [**快速开始**](./quick-start.md) — 从下载到第一次生成语音
 - [**DataFactory**](./data-factory.md) — 数据准备、ASR 与文本校对
 - [**Training**](./training.md) — Stage1 / Stage2 训练流程
-- **Inference** — 声音配置与语音生成
+- [**Inference**](./inference.md) — 声音配置与语音生成
 - **兼容性说明** — GPU、CUDA 与运行环境
 - **故障排查** — 常见启动与运行问题
 - **版本校验** — SHA256 与正式发布包验证

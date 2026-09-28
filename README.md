@@ -127,7 +127,7 @@ The README provides the main entry points. Full documentation will be organized 
 - [**Quick Start**](./docs/en/quick-start.md) — From download to first speech generation
 - [**DataFactory**](./docs/en/data-factory.md) — Data preparation, ASR, and transcript proofreading
 - [**Training**](./docs/en/training.md) — Stage1 / Stage2 training workflow
-- **Inference** — Voice Profiles and speech generation
+- [**Inference**](./docs/en/inference.md) — Voice Profiles and speech generation
 - **Compatibility** — GPU, CUDA, and runtime environment
 - **Troubleshooting** — Common startup and runtime issues
 - **Release Verification** — SHA256 and official package verification
