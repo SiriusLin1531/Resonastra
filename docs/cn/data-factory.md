@@ -11,97 +11,77 @@
 
 ## 1. 本指南解决什么问题
 
-Resonastra 的 DataFactory 负责把用户提供的原始语音整理成可以交给 Stage1 / Stage2 Training 使用的数据。
+Resonastra 的 DataFactory 负责把用户提供的原始语音整理成可以交给 Stage1 / Stage2 训练使用的数据。
 
-如果你只是使用内置 Zero-shot 模型，不需要经过 DataFactory。只有在准备 Stage1-only、Stage2-only 或 Full Few-shot 时，才需要使用本指南。
+如果你只使用内置 Zero-shot 模型，不需要经过 DataFactory。只有 Stage1-only、Stage2-only 或 Full Few-shot 路线需要进入这里。
 
-完成本指南中与你所选路线对应的步骤后，你应该能够：
+完成与你所选路线对应的步骤后，你应该能够：
 
-- 选择合适的原始音频输入方式；
-- 判断音频格式是否属于 v1.0.0 正式输入范围；
-- 创建或恢复一个 DataFactory 工作目录；
-- 完成音频切分和本地离线 FunASR 识别；
-- 检查并确认 ASR 文本；
+- 选择并导入受支持的原始音频；
+- 建立或恢复一个 DataFactory 工作目录；
+- 完成音频标准化、切分和本地离线 FunASR；
+- 确认训练文本；
 - 独立生成 Stage1 或 Stage2 训练数据；
-- 判断目标路线的数据是否真正就绪；
-- 在任务中断、页面刷新或重新启动后继续处理；
-- 将同一个工作目录交给 Training 使用。
+- 在中断后按正确方式恢复；
+- 判断当前路线是否已经可以进入 Training。
 
-本指南不展开 Stage1 / Stage2 的训练参数、模型检查点 / Active Best 管理、Voice Profile、Inference 参数、GPU / CUDA 兼容性原理或完整故障排查。这些内容会分别进入 Training、Inference、Compatibility 与 Troubleshooting 文档。
+本指南不展开 Training 参数、模型检查点 / Active Best、Voice Profile、Inference 参数、GPU / CUDA 兼容性政策或完整故障排查。
 
 ---
 
-## 2. DataFactory 在 Resonastra 工作流中的位置
+## 2. DataFactory 工作流与开始之前
 
-DataFactory 可以理解为 Few-shot 训练之前的数据准备层：
+DataFactory 是 Few-shot 训练之前的数据准备层：
 
 ```text
 原始音频
   ↓
-解码 / 标准化
-  ↓
-音频切分
+标准化 / 切分
   ↓
 本地离线 FunASR
   ↓
 文本确认
   ↓
-校对后的标准 manifest
+校对后的数据出口
   ├─→ Stage1 训练数据
   └─→ Stage2 训练数据
           ↓
        Training
 ```
 
-它并不负责模型训练本身。DataFactory 的结束条件不是“某个按钮运行完毕”，而是**你当前路线所需要的数据状态已经就绪**。
+DataFactory 的完成条件不是“最后一个按钮执行过”，而是**当前路线真正需要的数据已经就绪**。
 
-| 路线 | 是否需要 DataFactory | DataFactory 需要完成的内容 |
+| 路线 | 是否需要 DataFactory | 结束条件 |
 | --- | --- | --- |
-| Zero-shot | 否 | 无 |
-| Stage1-only Few-shot | 是 | 数据准备 + 文本确认 + Stage1 数据 |
-| Stage2-only Few-shot | 是 | 数据准备 + 文本确认 + Stage2 数据 |
-| Full Few-shot | 是 | 数据准备 + 文本确认 + Stage1 + Stage2 数据 |
+| Zero-shot | 否 | 不需要 DataFactory |
+| Stage1-only Few-shot | 是 | 文本确认 + Stage1 已就绪 |
+| Stage2-only Few-shot | 是 | 文本确认 + Stage2 已就绪 |
+| Full Few-shot | 是 | Stage1 已就绪 + Stage2 已就绪 |
 
 > [!IMPORTANT]
-> Stage1 与 Stage2 数据可以独立生成。不要把“Stage1 + Stage2 全部完成”误认为所有 Few-shot 路线都必须满足的统一结束条件。
+> Stage1 与 Stage2 数据可以独立生成。Stage1-only / Stage2-only 都是合法完成状态，不要求所有 Few-shot 路线都同时完成两个 Stage。
 
----
+### 2.1 开始前准备
 
-## 3. 开始之前
-
-开始 DataFactory 前，请先完成以下基础准备：
+建议先完成：
 
 1. 完整解压 Resonastra v1.0.0；
-2. 运行 `launch_check_env.bat` 并确认环境检查通过；
-3. 准备自己的中文语音数据；
-4. 确定一个用于区分本次数据的 **说话人 / 角色名**。
+2. 运行 `launch_check_env.bat` 并确认基础环境检查通过；
+3. 准备中文语音数据；
+4. 确定一个用于区分本项目的 **说话人 / 角色名**。
 
-### 3.1 v1.0.0 的语言与 ASR 边界
-
-当前正式发行版 DataFactory 只开放：
+当前 v1.0.0 DataFactory 正式用户路径为：
 
 ```text
 language = zh
+ASR = 本地离线 FunASR
 ```
 
-对应的识别路径固定使用本地离线 FunASR。
-
-### 3.2 数据质量建议
-
-为了获得更稳定的 Few-shot 数据，建议原始数据尽量满足：
-
-- 单说话人；
-- 发音清晰；
-- 语速正常；
-- 无明显背景噪声；
-- 避免大量剪辑异常、静音异常或明显损坏文件；
-- 尽量使用高质量源文件，避免反复有损转码。
-
-这些属于**训练质量建议**，不是 DataFactory 的全部强制输入条件。
+为了获得更稳定的 Few-shot 数据，建议使用单说话人、发音清晰、语速正常、无明显背景噪声的数据，并尽量避免损坏文件、异常静音或反复有损转码。这些属于质量建议，不是所有输入的硬性校验条件。
 
 ---
 
-## 4. 启动 DataFactory
+## 3. 启动 DataFactory
 
 从 Resonastra 根目录运行：
 
@@ -109,143 +89,79 @@ language = zh
 launch_data_factory_ui.bat
 ```
 
-默认端口为：
-
-```text
-7861
-```
-
-如果 `7861` 已被占用，启动器会自动选择其他可用端口。实际 WebUI 地址以启动终端显示的信息为准。
+默认端口为 `7861`。如果端口已占用，启动器会自动选择其他可用端口，实际地址以启动终端显示为准。
 
 > [!IMPORTANT]
-> `launch_data_factory_ui.bat` 打开的终端是 **WebUI 主启动终端**。使用 DataFactory 期间不要关闭它；关闭后对应 WebUI 会结束。
+> 主启动终端负责维持 DataFactory WebUI，使用期间不要关闭。
 
-### 4.1 页面主要区域
+页面主要包括：
 
-当前发行版页面主要分为：
-
-- **基础输入**：原始音频来源、角色名、语言和工作目录；
+- **基础输入**：原始音频来源、说话人、语言、工作目录；
 - **执行流程**：数据准备、人工校对、Stage1、Stage2；
-- **设置**：常用设置和高级设置；
-- **推荐操作 / 数据状态**：告诉你当前项目下一步更适合做什么；
-- **当前任务**：查看正在运行的长任务与 Stage2 子步骤；
-- **人工校对状态**：显示校对器是否正在运行；
-- **诊断信息**：查看详细状态、路径、步骤与 JSON。
+- **设置**；
+- **推荐操作 / 数据状态**；
+- **当前任务**；
+- **人工校对状态**；
+- **诊断信息**。
 
-第一次使用时，不需要先展开所有高级设置。建议先使用默认值跑通正常路径。
+第一次使用建议保持默认设置，先跑通标准流程。
 
-### 4.2 主启动终端与进度终端
+### 3.1 主启动终端与进度终端
 
-DataFactory 的 **显示终端进度窗口** 默认开启。执行数据准备、Stage1 或 Stage2 等长任务时，系统可能额外打开一个日志终端。
+执行长任务时，如果 **显示终端进度窗口** 开启，系统可能额外打开日志终端。
 
-两类终端的作用不同：
-
-| 窗口 | 用途 | 可以关闭吗 |
+| 窗口 | 用途 | 是否可以关闭 |
 | --- | --- | --- |
 | WebUI 主启动终端 | 维持 DataFactory WebUI | 使用期间不要关闭 |
 | 进度 / 日志终端 | 只读显示长任务日志 | 可以关闭，不会因此停止真实任务 |
 
 ---
 
-## 5. 准备原始语音数据
+## 4. 原始音频与工作目录
 
-### 5.1 三种原始音频来源
+### 4.1 三种原始音频来源
 
-在 **原始音频来源** 中可以选择三种方式。
+**本地目录路径**适合常规或较大的数据集。DataFactory 会递归扫描目录和子目录中的受支持音频。
 
-#### 方式 A：`本地目录路径`
+**上传音频文件**适合少量文件或快速测试。
 
-这是大数据集和常规训练最推荐的方式。
+**上传音频文件夹**适合从文件夹入口选择一组本地音频。
 
-填写：
-
-```text
-本地原始音频目录
-```
-
-DataFactory 会递归扫描该目录及其子目录中的受支持音频文件。
-
-这种方式不会先把你的整套数据复制进浏览器上传缓存，因此更适合十几分钟、数小时或更大的数据集。
-
-#### 方式 B：`上传音频文件`
-
-选择后会出现多文件选择入口。你可以选择一组本地音频。
-
-符合格式要求的上传文件会先复制到当前工作目录：
+上传模式中，被接受的音频会先复制到：
 
 ```text
 {work_dir}/00_uploaded_raw_audio/
 ```
 
-然后 DataFactory 再把这个缓存目录作为原始音频目录继续处理。
-
-该方式更适合小样本、快速测试或少量补充数据。
-
-#### 方式 C：`上传音频文件夹`
-
-选择后可以通过文件夹入口选择一整个本地目录。
-
-其中被识别为受支持音频的文件同样会复制到：
-
-```text
-{work_dir}/00_uploaded_raw_audio/
-```
-
-之后进入相同的数据准备链。
+再以该缓存目录作为原始音频输入。常用设置中的 `覆盖已上传音频缓存` 默认开启；它只影响这个上传缓存，不会删除原始本地目录。关闭时，再次上传同名文件会生成不冲突的新名称，而不是直接覆盖已有缓存文件。
 
 > [!NOTE]
-> 上传模式主要提供使用便利，并不代表大数据集必须经过浏览器上传。对于较大的 Few-shot 数据集，仍优先推荐 `本地目录路径`。
+> 上传模式主要提供便利。较大的 Few-shot 数据集仍优先推荐 **本地目录路径**。
 
-### 5.2 v1.0.0 正式识别的音频格式
+### 4.2 支持格式与质量边界
 
-当前正式白名单为：
+v1.0.0 正式识别：
 
 ```text
-.wav
-.mp3
-.flac
-.ogg
-.m4a
-.aac
-.wma
-.opus
+.wav  .mp3  .flac  .ogg
+.m4a  .aac  .wma   .opus
 ```
 
-目录扫描会按扩展名的小写形式匹配，因此 `.WAV`、`.FLAC` 等大小写形式也可以被识别。
-
-同一个原始音频目录中可以混合多种受支持格式，例如同时放入 WAV、FLAC 和 MP3。进入 DataFactory 后，后续处理会把它们统一到内部标准格式。
+扩展名匹配不区分大小写，同一目录可以混合多种受支持格式。
 
 > [!IMPORTANT]
-> “扩展名在白名单中”只表示 DataFactory 会尝试处理该文件，并不保证任意内部编码格式（codec）、任意封装变体或损坏文件都一定能够成功解码。
+> “扩展名受支持”只表示 DataFactory 会尝试处理，并不保证任意编码格式（codec）、封装变体或损坏文件都一定能够成功解码。
 
-白名单之外的文件不会成为正式原始音频输入。例如 WEBM、MP4、AIFF/AIF、CAF、AMR 等不属于当前 v1.0.0 的正式入口格式。
+WEBM、MP4、AIFF/AIF、CAF、AMR 等不属于当前正式入口格式。
 
-### 5.3 推荐使用 WAV / FLAC
+如果有条件，更推荐质量良好的 WAV / FLAC。有损音频也可以使用，但把 MP3 / AAC 等转成 WAV 不会恢复已经丢失的信息。
 
-从兼容性角度，上面的 8 种格式都可以进入正式流程。
+### 4.3 自动标准化与输入失败边界
 
-从训练数据质量角度，如果条件允许，更推荐使用质量良好的：
-
-```text
-WAV
-FLAC
-```
-
-MP3、AAC、M4A、OGG、OPUS、WMA 等有损来源也可以使用，但编码时已经丢失的信息不会因为 DataFactory 后面重新写成 WAV 而恢复。
-
-因此：
-
-- 已有的高质量 MP3/AAC 数据不需要为了“格式合规”而先手工转 WAV；
-- 如果你拥有原始无损版本，则优先使用原始 WAV / FLAC 更合适。
-
-### 5.4 DataFactory 会自动完成的标准化
-
-你不需要事先把每个原始文件手工统一为单声道、32 kHz 或 PCM16。
-
-当前数据链会在切分阶段把受支持音频读取并标准化：
+你不需要先手工把原始音频统一为单声道、32 kHz 或 PCM16。当前切分链会自动完成：
 
 ```text
-受支持的原始音频
+受支持原始音频
   ↓
 解码
   ↓
@@ -258,247 +174,62 @@ MP3、AAC、M4A、OGG、OPUS、WMA 等有损来源也可以使用，但编码时
 PCM 16-bit WAV 片段
 ```
 
-切分后的标准短音频会以 `.wav` 形式进入后续 ASR 和训练数据准备。
+如果源目录不存在、没有受支持音频、上传复制失败、音频损坏或内部编码无法解码，数据准备可能失败。当前切分链不承诺“单个坏文件失败后一定继续处理所有剩余文件”，遇到解码错误时应先定位异常源文件。
 
-### 5.5 上传缓存的覆盖行为
+### 4.4 说话人名称与工作目录
 
-常用设置中的：
-
-```text
-覆盖已上传音频缓存
-```
-
-默认开启。
-
-它只针对：
-
-```text
-{work_dir}/00_uploaded_raw_audio/
-```
-
-上传缓存，不会删除你原来的本地音频目录。
-
-如果关闭这个选项，再次上传同名文件时系统会为目标文件生成不冲突的新名称，而不是直接覆盖已有文件。
-
-### 5.6 原始输入常见失败边界
-
-数据准备前或数据准备过程中可能遇到以下情况：
-
-- 本地目录不存在；
-- 本地目录中没有任何受支持扩展名的音频；
-- 上传选择中没有检测到受支持音频；
-- 上传文件复制失败；
-- 文件后缀受支持，但内部音频无法解码；
-- 个别源文件损坏。
-
-如果错误发生在切分阶段，不要假设系统一定会自动跳过所有坏文件。当前切分链并不是以“每个文件失败后继续全部剩余文件”为默认容错契约；出现解码错误时应先定位异常源文件。
-
----
-
-## 6. 说话人名称与工作目录
-
-### 6.1 说话人 / 角色名
-
-在 **说话人 / 角色名** 中填写这套数据的名称，例如：
-
-```text
-Character_A
-```
-
-如果不手动指定工作目录，DataFactory 会根据这个名称自动使用：
-
-```text
-user_data/Character_A_factory
-```
-
-通用规则是：
+如果不手工指定工作目录，DataFactory 按说话人名称使用：
 
 ```text
 user_data/{speaker_name}_factory
 ```
 
-后续 Training 建议继续使用同一个角色名和同一个工作目录。
-
-### 6.2 自定义工作目录
-
-展开：
+例如：
 
 ```text
-已有项目 / 工作目录
+说话人 / 角色名：Character_A
+工作目录（work_dir）：user_data/Character_A_factory
 ```
 
-可以填写：
+如果需要自定义位置或恢复旧项目，可在 **已有项目 / 工作目录** 中填写 **工作目录（可选）**。
 
-```text
-工作目录（可选）
-```
+### 4.5 载入 / 扫描已有项目
 
-适合以下情况：
-
-- 希望把当前 DataFactory 项目放在自定义位置；
-- 页面刷新后恢复旧项目；
-- 重新启动 Resonastra 后继续旧项目；
-- 明确知道已有工作目录，希望直接扫描状态。
-
-如果留空，DataFactory 会继续使用默认的 `user_data/{speaker_name}_factory`。
-
-### 6.3 载入 / 扫描已有工作目录
-
-填写旧工作目录或角色名后，点击：
+点击：
 
 ```text
 载入/扫描工作目录
 ```
 
-DataFactory 会重新检查已有产物，并刷新：
+系统会重新检查真实文件产物并刷新：
 
-- 数据准备是否完成；
-- 文本确认是否完成；
-- Stage1 数据是否完成；
-- Stage2 各子步骤是否完成；
-- 哪些步骤仍然缺失或处于部分完成状态。
-
-这个按钮是恢复旧项目时最重要的入口之一。
+- 数据准备；
+- 文本确认；
+- Stage1；
+- Stage2 各子步骤；
+- 缺失或部分完成状态。
 
 > [!IMPORTANT]
-> DataFactory 的恢复模型以 `work_dir` 为中心。页面状态丢失、浏览器刷新或 WebUI 重启，并不等于工作目录里的真实产物消失。
+> DataFactory 的恢复机制以工作目录（`work_dir`）为中心。浏览器刷新、页面状态丢失或 WebUI 重启，并不代表已有数据产物消失。
 
 ---
 
-## 7. 工作目录结构与关键产物
+## 5. 数据准备与文本确认
 
-普通用户不需要记住每个内部文件，但理解主要目录有助于判断状态和排查问题。
+### 5.1 开始准备数据
 
-### 7.1 基础数据处理目录
-
-一个典型工作目录中会包含：
-
-```text
-{speaker_name}_factory/
-├── 00_uploaded_raw_audio/   # 仅上传模式使用
-├── 00_raw_index/
-├── 01_uvr_vocal/
-├── 01_uvr_other/
-├── 02_denoise/
-├── 03_clips_raw/
-├── 04_asr/
-├── 05_label/
-├── 06_export/
-└── logs/
-```
-
-其中 `01_uvr_*` 与 `02_denoise/` 属于保留的数据目录结构。v1.0.0 当前正式用户流程并未开放 UVR / denoise 作为可启用的 DataFactory 功能，因此不要仅因为这些目录为空就判断任务失败。
-
-### 7.2 `06_export/` 是基础数据出口
-
-这里会出现后续 Stage1 / Stage2 使用的重要文件，例如：
-
-| 文件 / 目录 | 用户层含义 |
-| --- | --- |
-| `clips/` | 标准化和切分后的训练音频 |
-| `manifest.jsonl` | 数据准备后生成的基础 manifest |
-| `dataset.list` | Stage1 数据构建等流程使用的列表 |
-| `stage2_manifest.jsonl` | 基础 Stage2 manifest |
-| `manifest.corrected.jsonl` | 文本确认后的主 manifest |
-| `stage2_manifest.corrected.jsonl` | 校对后的 Stage2 对应 manifest |
-| `stage2_manifest.fewshot.jsonl` | Stage2 Few-shot 后处理正式使用的 manifest |
-
-此外还会有健康检查、Prompt 选择、转换等报告文件，用于检查数据是否符合后续步骤要求。
-
-> [!NOTE]
-> 数据准备阶段就会生成初始的 `stage2_manifest.jsonl` 并执行相应健康检查，但这**不代表 Stage2 训练数据已经完成**。真正的 Stage2 Few-shot 后处理会在文本确认后从 `manifest.corrected.jsonl` 生成 `stage2_manifest.fewshot.jsonl`，再继续构建 Stage2 `.pt`、缓存、训练 / 验证划分与过滤报告。
-
-### 7.3 Stage1 数据目录
-
-Stage1 的最终数据单独存放在：
-
-```text
-07_stage1_ft/
-```
-
-典型内容包括：
-
-```text
-07_stage1_ft/
-├── frontend_cache/
-├── semantic_cache/
-├── train_manifest.jsonl
-├── val_manifest.jsonl
-└── metadata/
-    ├── build_report.json
-    └── split.json
-```
-
-### 7.4 Stage2 紧凑目录结构
-
-v1.0.0 的正式工作目录已经把 Stage2 的重产物收拢在同一个 `{speaker_name}_factory` 内：
-
-```text
-07_stage2_pt_all/
-08_continuous_semantic/
-09_style_f0_spk/
-10_train_val/
-├── train/
-├── val/
-└── split_report.json
-11_filter/
-├── rejected/
-├── filter_bad_style_samples_report.json
-└── filter_bad_style_samples_bad.csv
-```
-
-这意味着停止、扫描、续跑和 Training 交接都可以围绕同一个工作目录进行。
-
-### 7.5 普通用户需要记住的两个层级
-
-**必须知道：**
-
-- 当前 `work_dir`；
-- `manifest.corrected.jsonl` 是否已产生；
-- Stage1 / Stage2 是否达到当前路线所需已就绪状态。
-
-**排查时有用：**
-
-- `logs/`；
-- 构建 / 健康检查 / 划分 / 过滤报告；
-- 训练 / 验证数据与缓存数量。
-
----
-
-## 8. 第一步：开始准备数据
-
-完成基础输入后，点击：
+完成基础输入后点击：
 
 ```text
 开始准备数据
 ```
 
-### 8.1 第一次使用的推荐输入
-
-如果你还不熟悉 DataFactory，可以先使用：
-
-```text
-原始音频来源：本地目录路径
-本地原始音频目录：你的原始音频目录
-说话人 / 角色名：例如 Character_A
-语言：zh
-工作目录：留空
-```
-
-这样系统会自动使用：
-
-```text
-user_data/Character_A_factory
-```
-
-### 8.2 数据准备实际会做什么
-
-用户点击一次 **开始准备数据** 后，背后会完成一组连续步骤：
+默认流程大致为：
 
 ```text
 扫描原始音频
   ↓
-建立原始音频索引
+建立索引
   ↓
 解码 / 单声道化 / 32 kHz
   ↓
@@ -510,33 +241,23 @@ user_data/Character_A_factory
   ↓
 生成初始 stage2_manifest.jsonl
   ↓
-执行基础 manifest / Stage2 manifest 健康检查
+基础健康检查
 ```
 
-这些初始 Stage2 产物用于后续校对与 Few-shot 数据链衔接，不等同于最终 Stage2 训练数据已就绪。
+初始 `stage2_manifest.jsonl` 只是数据准备阶段的中间出口，**不代表 Stage2 训练数据已经就绪**。
 
-### 8.3 本地离线 FunASR
+### 5.2 本地离线 FunASR 与成功条件
 
-Resonastra v1.0.0 的正式 DataFactory 发行路径使用：
+正式发行路径使用：
 
 ```text
 language = zh
 backend = auto → 本地 FunASR
 ```
 
-FunASR 使用发布包中预置的本地：
+FunASR 使用发布包中的本地 ASR / VAD / 标点模型；运行时不会从 ModelScope 或 Hugging Face 下载这些模型，更新检查也处于关闭状态。缺少模型资产时应检查发行包或环境，而不是等待联网下载。
 
-- ASR 模型；
-- VAD 模型；
-- 标点模型。
-
-运行时不会从 ModelScope 或 Hugging Face 下载这些模型，FunASR 启动更新检查也处于关闭状态。
-
-因此，如果这些本地模型资产缺失，正确处理方式是检查发布包 / 环境，而不是等待程序联网下载。
-
-### 8.4 数据准备成功条件
-
-完成后，用户状态区应显示：
+数据准备完成后，页面应显示：
 
 ```text
 音频处理与基础识别产物已就绪。
@@ -549,27 +270,9 @@ FunASR 使用发布包中预置的本地：
 06_export/dataset.list
 ```
 
-这时可以进入文本确认阶段。
+如果任务失败或中止，优先查看当前任务 / 诊断信息并重新扫描工作目录，不要默认删除整个项目重来。
 
-### 8.5 数据准备失败时先检查状态
-
-如果任务失败或被中止，不建议第一反应就是删除整个工作目录。
-
-先按以下顺序处理：
-
-1. 查看 **当前任务** 和进度终端；
-2. 展开 **诊断信息** 查看最近一次操作；
-3. 点击 **载入/扫描工作目录**；
-4. 确认哪些产物已存在；
-5. 根据错误原因决定继续、修复输入或明确覆盖。
-
----
-
-## 9. 第二步：确认 ASR 文本
-
-ASR 结果会参与后续训练数据构建。音频内容与训练文本明显不一致时，会降低数据质量，因此建议在进入 Stage1 / Stage2 数据生成前完成文本确认。
-
-### 9.1 启动人工校对器
+### 5.3 人工校对器
 
 点击：
 
@@ -577,19 +280,9 @@ ASR 结果会参与后续训练数据构建。音频内容与训练文本明显�
 启动 / 打开人工校对器
 ```
 
-DataFactory 会启动独立的人工校对器，并在页面中显示运行状态和访问地址。
+校对器会读取当前 `dataset.list`。根据对应音频检查 ASR 文本，修正错字、漏字或明显识别错误，并使用校对器自身的保存功能保存。同一 `work_dir` 的校对器已经运行时，发行版会阻止重复启动新的同类实例。
 
-如果同一个工作目录的校对器已经在运行，发行版会阻止重复启动新的同类实例。
-
-### 9.2 校对时做什么
-
-人工校对器会载入当前工作目录的 `dataset.list`。请在校对器中根据对应音频条目检查 ASR 文本，修正明显错字、漏字或识别错误，并使用校对器自身的保存功能保存修改。
-
-这里的目标不是改写说话内容，而是尽量让训练文本准确对应音频中实际说出的内容。
-
-### 9.3 校对器有独立生命周期
-
-DataFactory 页面中会提供专用：
+DataFactory 还提供独立的：
 
 ```text
 关闭人工校对器
@@ -601,70 +294,52 @@ DataFactory 页面中会提供专用：
 停止当前任务
 ```
 
-不是同一个功能。
+不是同一个功能。前者管理校对器进程，后者管理 DataFactory / Stage1 / Stage2 构建任务。
 
-- `停止当前任务` 负责 DataFactory / Stage1 / Stage2 的构建子进程；
-- `关闭人工校对器` 专门负责人工校对器进程。
+### 5.4 完成文本确认
 
-在需要从保存后的校对结果重建校对后的 manifest 时，系统会确保校对器能够安全关闭，以避免仍在运行的校对器和重建操作同时修改同一组数据。
-
-### 9.4 保存后完成校对
-
-确认校对器中已经保存修改后，返回 DataFactory，点击：
+保存校对结果后，返回 DataFactory 点击：
 
 ```text
 已保存并完成校对
 ```
 
-DataFactory 会根据保存后的校对结果重建校对后的 manifest。
-
-### 9.5 如果 ASR 结果无需修改
-
-如果你已经人工检查并确认自动识别文本可以直接使用，可以点击：
+如果人工检查后确认 ASR 结果可以直接使用，则点击：
 
 ```text
 无需校对，继续
 ```
 
-这个操作不是“跳过文本确认阶段”，而是**接受当前识别结果作为后续训练文本**，并生成后续需要的校对后 manifest。
+这表示接受当前识别文本，不是跳过文本确认阶段。
 
-### 9.6 文本确认成功条件
-
-页面应显示：
+成功后页面应显示：
 
 ```text
 文本确认结果已就绪。
 ```
 
-关键产物为：
+关键产物：
 
 ```text
 06_export/manifest.corrected.jsonl
 ```
 
-正常用户流程中，Stage1 与 Stage2 都应先完成文本确认，但两条数据链读取的文件并不完全相同：
+Stage1 与 Stage2 都应先完成文本确认，但两条链读取方式不同：
 
-- **Stage1** 构建流程读取 `06_export/dataset.list`；人工校对器直接编辑这份列表，而“无需校对，继续”表示接受当前列表内容。
-- **Stage2** 后处理明确要求 `06_export/manifest.corrected.jsonl`，没有校对后的 manifest 时不会启动正式 Stage2 后处理。
+- **Stage1** 主要使用 `06_export/dataset.list` 和 `06_export/clips/`；校对器直接修改 `dataset.list`；
+- **Stage2** 正式后处理要求 `06_export/manifest.corrected.jsonl`。
 
 ---
 
-## 10. 第三步 A：生成 Stage1 训练数据
+## 6. 生成 Stage1 / Stage2 训练数据
 
-如果你的路线是：
+### 6.1 Stage1 数据生成
 
-- Stage1-only Few-shot；
-- Full Few-shot；
-
-需要生成 Stage1 数据。
-
-点击：
+Stage1-only 与 Full Few-shot 需要点击：
 
 ```text
 生成 Stage1 训练数据
 ```
-
-### 10.1 Stage1 数据从哪里来
 
 当前用户路径主要使用：
 
@@ -673,140 +348,94 @@ DataFactory 会根据保存后的校对结果重建校对后的 manifest。
 06_export/clips/
 ```
 
-并在当前工作目录中构建 Stage1 文本前端缓存 / 语义缓存与训练 / 验证 manifest。
+输出根目录：
 
-### 10.2 默认 Stage1 切分
+```text
+07_stage1_ft/
+```
 
-常用设置中的 Stage1 训练集比例默认：
+默认训练集比例：
 
 ```text
 train_ratio = 0.90
 ```
 
-验证集比例自动使用：
-
-```text
-1 - train_ratio
-```
-
-Stage1 划分随机种子（split seed）不要求普通用户手工填写；系统会自动生成并记录在：
+验证集比例自动为 `1 - train_ratio`；划分随机种子由构建流程自动生成并记录到：
 
 ```text
 07_stage1_ft/metadata/split.json
 ```
 
-默认处理全部输入样本。
-
-### 10.3 Stage1 覆盖保护
-
-如果当前工作目录已经存在 Stage1 训练数据或缓存，而你没有显式要求覆盖，发行版会阻止意外启动新的覆盖式 Stage1 构建。
-
-> [!WARNING]
-> `覆盖已有 Stage1 cache` 是显式重建操作。只有在你确定希望重新构建当前 Stage1 数据时才启用。
-
-Stage1 与 Stage2 的恢复方式不同：**Stage1 没有独立的基于已有产物的续跑（Resume）按钮**。只要 `07_stage1_ft/` 下已经存在任何文件——包括失败或中断留下的部分产物——再次点击“生成 Stage1 训练数据”而未授权覆盖时，发行版会阻止新的 Stage1 构建任务启动。
-
-因此，如果 Stage1 已经完整就绪，只需保留现有结果；如果 Stage1 处于部分完成 / 失败状态且你决定重建，则先确认工作目录和日志，再显式勾选 `覆盖已有 Stage1 cache` 后重新生成。
-
-启用覆盖后，发行版会在成功构建之后清理新 manifest 不再引用的旧缓存，并执行严格的缓存契约检查，避免训练 / 验证 manifest 与文本前端 / 语义缓存不一致。
-
-### 10.4 Stage1 成功条件
-
-页面应显示：
+成功时页面应显示：
 
 ```text
 Stage1 训练数据已完成。
 ```
 
-Stage1 就绪状态并不只看 `07_stage1_ft/` 文件夹是否存在，而会综合检查：
-
-- `metadata/build_report.json` 的构建状态；
-- `train_manifest.jsonl`；
-- `val_manifest.jsonl`；
-- `frontend_cache/`；
-- `semantic_cache/`。
-
-主要输出目录：
+Stage1 是否已就绪，不能只看目录是否存在，还会检查：
 
 ```text
-{work_dir}/07_stage1_ft/
+07_stage1_ft/metadata/build_report.json
+07_stage1_ft/train_manifest.jsonl
+07_stage1_ft/val_manifest.jsonl
+07_stage1_ft/frontend_cache/
+07_stage1_ft/semantic_cache/
 ```
 
-如果你的路线是 Stage1-only，到这里 DataFactory 对 Stage1 的任务已经完成，可以进入 Training。
+### 6.2 Stage1 覆盖保护与恢复边界
 
----
+如果 `07_stage1_ft/` 下已经存在任何文件，而没有显式授权覆盖，发行版会阻止新的 Stage1 构建。
 
-## 11. 第三步 B：生成 Stage2 训练数据
+> [!WARNING]
+> `覆盖已有 Stage1 cache` 是显式重建操作。只有确定要重建当前 Stage1 数据时才启用。
 
-如果你的路线是：
+Stage1 **不支持** Stage2 这种基于已有产物的续跑（Resume）：
 
-- Stage2-only Few-shot；
-- Full Few-shot；
+- 已完整就绪 → 保留现有结果即可；
+- 部分完成或失败 → 先检查工作目录和日志；
+- 确认需要重建后 → 显式启用 `覆盖已有 Stage1 cache`。
 
-需要生成 Stage2 数据。
+成功覆盖后，发行版会清理新 manifest 不再引用的旧缓存，并执行严格缓存契约检查。
 
-点击：
+### 6.3 Stage2 数据生成
+
+Stage2-only 与 Full Few-shot 需要点击：
 
 ```text
 生成 Stage2 训练数据
 ```
 
-### 11.1 Stage2 数据生成不是单一步骤
-
-一次按钮操作内部包含多个连续阶段：
+Stage2 是多阶段链：
 
 ```text
 manifest.corrected.jsonl
   ↓
-生成 Stage2 Few-shot manifest
+stage2_manifest.fewshot.jsonl
   ↓
-Stage2 .pt 预处理
+Stage2 .pt
   ↓
-continuous semantic 缓存
+continuous semantic cache
   ↓
-Style / F0 / Speaker 缓存
+Style / F0 / Speaker cache
   ↓
 训练 / 验证集划分
   ↓
-异常样本过滤报告
+异常样本过滤
 ```
 
-因此 Stage2 数据准备通常明显比 Stage1 更重，也更需要实时监控和断点恢复。
+参考音频（Prompt）选择默认规则：
 
-### 11.2 Stage2 Few-shot manifest 的生成
+| 参数 | 默认值 |
+| --- | ---: |
+| `prompt_mode` | `speaker_pool` |
+| `min_prompt_sec` | `3.0` |
+| `max_prompt_sec` | `10.0` |
+| `prefer_prompt_sec` | `6.0` |
+| `allow_self_prompt` | `True` |
 
-第一阶段会从：
+这里的 3–10 秒是 **Stage2 数据构建时的参考音频（Prompt）选择规则**，不要与 Inference 页面要求用户提供 3–10 秒 Prompt WAV 混为同一个操作。
 
-```text
-06_export/manifest.corrected.jsonl
-```
-
-导出：
-
-```text
-06_export/stage2_manifest.fewshot.jsonl
-```
-
-这个步骤同时会处理 Stage2 所需的 Prompt 选择。
-
-### 11.3 Prompt 选择的默认规则
-
-当前默认值为：
-
-| 参数 | 默认值 | 用户含义 |
-| --- | ---: | --- |
-| `prompt_mode` | `speaker_pool` | 从说话人数据池中选择 Prompt |
-| `min_prompt_sec` | `3.0` | Prompt 最短时长 |
-| `max_prompt_sec` | `10.0` | Prompt 最长时长 |
-| `prefer_prompt_sec` | `6.0` | 优先选择附近时长的候选 |
-| `allow_self_prompt` | `True` | 允许在需要时使用样本自身作为 Prompt |
-
-> [!NOTE]
-> 这里的 3–10 秒属于 **Stage2 数据构建时的 prompt-selection 规则**。它与 Inference 页面要求用户上传 3–10 秒 Prompt WAV 是两个不同的操作场景，只是当前版本使用了相同的时长边界。
-
-### 11.4 Stage2 .pt 与后续缓存
-
-Stage2 后续会依次生成：
+主要 Stage2 产物位于：
 
 ```text
 07_stage2_pt_all/
@@ -816,336 +445,188 @@ Stage2 后续会依次生成：
 11_filter/
 ```
 
-实时监控会把多个子步骤同时展示出来。处理过程中出现部分完成状态并不一定表示失败，它可能只是说明当前已有部分样本完成、后续样本仍在继续。
-
-当前 v1.0.0 用户发行 UI 还固定启用了 Stage2 异常样本自动隔离。最终过滤步骤会以 `move` 模式处理命中的异常样本，将其从训练 / 验证目录移入：
+v1.0.0 用户发行路径固定启用异常样本自动隔离，最终过滤步骤使用 `move` 语义：命中的异常样本会移入：
 
 ```text
 11_filter/rejected/
 ```
 
-并同时生成 JSON / CSV 过滤报告。因此过滤完成后，训练 / 验证目录中的实际可训练样本数少于过滤前的源样本数可能是正常现象。
+并生成 JSON / CSV 格式的过滤报告。因此过滤后可训练样本数少于过滤前是可能的正常结果。
 
-### 11.5 Stage2 成功条件
-
-Quick Start 中对普通用户显示的最终摘要是：
+Stage2 只有在 Few-shot manifest、Stage2 `.pt`、continuous / style 缓存、训练 / 验证集划分，以及与当前划分和文件数量一致的有效过滤结果全部完成后，才视为已就绪。成功时用户摘要应显示：
 
 ```text
 Stage2 训练数据已完成。
 ```
 
-详细状态层面，完整 Stage2 就绪状态通常需要以下部分全部完成：
+### 6.4 Stage2 基于已有产物的续跑（Resume）
 
-- Stage2 Few-shot manifest；
-- Stage2 `.pt`；
-- continuous semantic 缓存；
-- Style / F0 / Speaker 缓存；
-- 训练 / 验证集划分；
-- 有效且与当前划分结果 / 文件数量一致的异常样本过滤报告。
-
-如果你的路线是 Stage2-only，到这里可以进入 Training；不需要额外生成 Stage1 数据。
-
----
-
-## 12. 继续生成 Stage2 数据与断点恢复
-
-Stage2 是长链任务，因此 Resonastra 提供：
+中断、重启、刷新或修复某一步问题后，可以：
 
 ```text
 继续生成 Stage2 训练数据
 ```
 
-### 12.1 什么时候使用
-
-适合以下情况：
-
-- Stage2 中途手动停止；
-- WebUI 被关闭后重新启动；
-- 浏览器页面刷新；
-- 某一步失败后已经修复问题；
-- 工作目录中已经存在部分 `.pt` 或缓存；
-- 希望从旧项目继续完成剩余 Stage2 产物。
-
-### 12.2 基于已有产物的自动续跑
-
-继续模式会根据真实文件产物判断是否需要运行某一步。
-
-核心规则是：
-
-- 如果某一步关键产物已经完整存在，会自动跳过；
-- 如果 `.pt` / 缓存只完成了一部分，会继续尝试补齐缺失样本；
-- 如果你显式启用了对应覆盖选项，该步骤仍然会重跑；
-- 划分 / 过滤报告如果过期、数量不一致或与当前文件系统状态不一致，不会被视为已就绪；
-- 如果某一步真正失败，后续链会停止，不会把失败伪装成成功。
-
-例如，如果 `stage2_manifest.fewshot.jsonl` 已经存在且不早于校对后的 manifest，续跑时可以直接跳过重新导出 manifest；如果 Stage2 `.pt` 数量已经达到预期样本数并且没有请求覆盖，也会跳过该步骤。
-
-### 12.3 推荐的恢复步骤
+推荐恢复路径：
 
 ```text
 重新启动 DataFactory
   ↓
-填写原 `speaker_name` 或原 `work_dir`
+填写原来的说话人 / 角色名和工作目录
   ↓
-点击“载入/扫描工作目录”
+载入/扫描工作目录
   ↓
-确认已有产物和部分完成状态
+确认真实产物状态
   ↓
-点击“继续生成 Stage2 训练数据”
+继续生成 Stage2 训练数据
 ```
 
+续跑会根据真实产物决定哪些步骤可以复用：
+
+- 已完整且仍有效的关键产物可以跳过；
+- 已存在但尚未完整的 `.pt` / 缓存会尝试继续补齐；
+- 显式启用覆盖后，会强制对应步骤重新执行；
+- 已过期，或与当前文件系统状态不一致的划分 / 过滤报告，不会被视为有效产物；
+- 任一步真正失败时，后续链停止，不会把失败伪装成成功。
+
 > [!IMPORTANT]
-> 中断后优先 **扫描状态 + 继续生成**，不要把“从头重跑并开启所有覆盖选项”当成默认恢复方式。
+> Stage2 中断后优先 **扫描状态 + 续跑**，不要默认打开所有覆盖选项从头重跑。
+
+### 6.5 各路线的完成条件
+
+| 路线 | DataFactory 最终应确认 |
+| --- | --- |
+| Stage1-only | 文本确认完成 + Stage1 已就绪 |
+| Stage2-only | 文本确认完成 + Stage2 已就绪 |
+| Full Few-shot | Stage1 已就绪 + Stage2 已就绪 |
+
+顶部状态或 Training 交接应以 Stage1 / Stage2 的独立就绪状态为准，不要只根据目录是否存在或按钮是否执行过判断成功。
 
 ---
 
-## 13. 停止任务、刷新状态与实时监控
+## 7. 停止任务、状态与诊断
 
-### 13.1 停止当前任务
+### 7.1 停止当前任务
 
-在：
-
-```text
-已有项目 / 工作目录
-```
-
-区域可以点击：
+在 **已有项目 / 工作目录** 区域点击：
 
 ```text
 停止当前任务
 ```
 
-系统会查找与当前工作目录匹配的 DataFactory 构建子进程并尝试停止。
+系统会尝试停止与当前工作目录匹配的 DataFactory 构建子进程。停止后应重新扫描工作目录，因为已执行步骤可能留下部分产物。
 
-停止后会重新扫描工作目录，因为正在执行的步骤可能已经留下部分产物。
-
-因此正确的后续动作通常是：
+推荐：
 
 ```text
 停止当前任务
   ↓
 载入/扫描工作目录
   ↓
-查看真实剩余状态
+查看真实状态
   ↓
 决定续跑 / 修复 / 显式覆盖
 ```
 
-`停止当前任务` 不负责关闭人工校对器；人工校对器使用自己的 **关闭人工校对器**。
+`停止当前任务` 不负责关闭人工校对器。
 
-### 13.2 当前任务与实时监控
+### 7.2 实时状态
 
-页面右侧 **当前任务** 会显示当前长任务信息，并可通过：
+**当前任务** 可以主动 **立即刷新**，长任务期间也会自动刷新。
 
-```text
-立即刷新
-```
+用户级状态包括：
 
-主动刷新。
-
-长任务期间系统还会按固定间隔自动刷新状态。
-
-Stage2 运行时可以看到各个子步骤的实时状态，而不需要等整个任务结束后才知道最终结果。
-
-### 13.3 如何理解状态
-
-顶部四阶段卡片使用的是用户级状态：
-
-| 用户看到的状态 | 含义 |
+| 状态 | 含义 |
 | --- | --- |
-| 尚未开始 | 当前阶段还没有有效进度 |
-| 等待前置步骤 | 上游步骤尚未完成 |
-| 等待确认 | 音频处理已经完成，正在等待文本确认 |
-| 部分完成 | 已有部分有效产物，但尚未完整 |
-| 已完成 | 当前阶段通过对应状态检查 |
+| 尚未开始 | 没有有效进度 |
+| 等待前置步骤 | 上游尚未完成 |
+| 等待确认 | 数据准备完成，等待文本确认 |
+| 部分完成 | 已有有效产物但尚未完整 |
+| 已完成 | 当前阶段通过状态检查 |
 
-展开诊断信息时，内部统一状态可能显示 `missing / blocked / partial / done`。Training 交接最重要的是顶部独立的 **Stage1 / Stage2 就绪状态**：目标阶段显示 **可进入训练** 时，才应把它视为该路线的数据准备完成。
+诊断层可能显示 `missing / blocked / partial / done`。Training 交接最重要的是独立的 **Stage1 / Stage2 就绪状态**，而不是某个文件夹是否存在。
 
-不要只根据一个文件夹是否存在判断成功。
+### 7.3 诊断信息与日志
 
-### 13.4 诊断信息
+正常流程通常不需要展开 **诊断信息**。排查时可查看最近操作、工作目录状态、步骤摘要、人工校对器状态，以及 DataFactory Result / Live Monitor 等诊断 JSON。
 
-普通用户正常流程通常不需要展开 **诊断信息**。遇到异常时，它可以提供：
+主要运行日志位于：
 
-- 最近一次操作；
-- 工作目录状态；
-- 输出摘要；
-- 步骤摘要；
-- 当前工作目录；
-- 人工校对器诊断；
-- DataFactory Result JSON；
-- DataFactory Live Monitor JSON。
+```text
+{work_dir}/logs/
+```
 
-这些内容主要用于定位失败步骤和确认真实路径。
+Stage1 还会记录独立的标准输出（stdout）、标准错误（stderr）和执行命令信息。优先先定位失败步骤，再查看对应日志。
 
 ---
 
-## 14. 按训练路线完成 DataFactory
+## 8. 设置与高级参数
 
-### 14.1 Stage1-only Few-shot
+第一次跑通 DataFactory 时建议优先使用默认值。只有明确知道要解决什么问题时，再调整高级设置。
 
-```text
-数据准备
-  ↓
-文本确认
-  ↓
-Stage1 训练数据
-  ↓
-Training
-```
-
-完成检查：
-
-- [ ] 数据准备已完成；
-- [ ] `manifest.corrected.jsonl` 已就绪；
-- [ ] Stage1 训练数据已完成；
-- [ ] `07_stage1_ft/` 的构建报告 / manifests / 缓存通过状态扫描。
-
-不需要生成 Stage2 数据。
-
-### 14.2 Stage2-only Few-shot
-
-```text
-数据准备
-  ↓
-文本确认
-  ↓
-Stage2 训练数据
-  ↓
-Training
-```
-
-完成检查：
-
-- [ ] 数据准备已完成；
-- [ ] `manifest.corrected.jsonl` 已就绪；
-- [ ] Stage2 Few-shot manifest 已完成；
-- [ ] Stage2 `.pt` 已完成；
-- [ ] continuous / style 缓存已完成；
-- [ ] 训练 / 验证划分已完成；
-- [ ] 过滤报告已完成。
-
-不需要生成 Stage1 数据。
-
-### 14.3 Full Few-shot
-
-```text
-数据准备
-  ↓
-文本确认
-  ├─→ Stage1 训练数据
-  └─→ Stage2 训练数据
-          ↓
-       Training
-```
-
-最终推荐摘要应显示：
-
-```text
-Stage1 与 Stage2 数据均已完成。
-```
-
-完成检查：
-
-- [ ] 数据准备已完成；
-- [ ] 文本确认已完成；
-- [ ] Stage1 数据已就绪；
-- [ ] Stage2 数据已就绪。
-
----
-
-## 15. 设置说明
-
-第一次跑通 DataFactory 时，建议优先使用默认值。只有在明确知道要解决什么问题时，才调整高级设置。
-
-### 15.1 常用设置
+### 8.1 常用设置与超时边界
 
 | 设置 | 默认值 | 作用 |
 | --- | ---: | --- |
-| 覆盖已有数据工厂工作目录 | 关闭 | 允许数据准备流程对已有工作目录执行覆盖式操作 |
-| 覆盖已上传音频缓存 | 开启 | 重新上传时先清理 `00_uploaded_raw_audio/` |
-| 单步超时秒数，0 表示不限制 | `0` | v1.0.0 各执行路径对 `0` 的内部处理并不完全一致，见下方说明 |
-| Stage1 训练集比例 | `0.90` | Stage1 训练 / 验证划分比例 |
-| Stage2 训练集比例 | `0.90` | Stage2 训练 / 验证划分比例 |
-| 显示终端进度窗口 | 开启 | 长任务时额外显示只读日志终端 |
+| 覆盖已有数据工厂工作目录 | 关闭 | 允许数据准备执行覆盖式操作 |
+| 覆盖已上传音频缓存 | 开启 | 上传时清理 `00_uploaded_raw_audio/` |
+| 单步超时秒数，0 表示不限制 | `0` | 控制单步超时 |
+| Stage1 训练集比例 | `0.90` | Stage1 训练 / 验证集划分 |
+| Stage2 训练集比例 | `0.90` | Stage2 训练 / 验证集划分 |
+| 显示终端进度窗口 | 开启 | 额外显示只读日志终端 |
 
 > [!NOTE]
-> v1.0.0 的界面标签写作“0 表示不限制”，但实际执行路径存在一个发行路径差异：Stage1 / Stage2 会把 `0` 归一化为“未显式设置超时”，而数据准备流程会回落到内部 `7200` 秒（2 小时）默认值。如果你的数据准备预计可能超过 2 小时，请显式填写更大的正数秒数，而不要依赖 `0` 获得无限时长。
+> v1.0.0 中，超时值为 `0` 在不同执行路径中的实际处理并不完全一致：Stage1 / Stage2 会把 `0` 归一化为“未显式设置超时”，而数据准备流程会回落到内部 `7200` 秒默认值。如果数据准备预计可能超过 2 小时，请填写更大的正数，不要依赖 `0` 获得无限时长。
 
 > [!WARNING]
-> 不要在不了解已有工作目录内容时同时开启多个覆盖选项。正常恢复旧项目首先应使用 `载入/扫描工作目录`；Stage2 使用续跑功能，Stage1 的部分产物则按第 10.3 节的覆盖保护处理。
+> 正常恢复旧项目首先应 **载入/扫描工作目录**。Stage2 优先续跑；Stage1 的部分产物按 §6.2 的覆盖保护规则处理。不要把“同时开启所有覆盖选项并从头重跑”当作默认恢复方式。
 
-### 15.2 ASR 设置
+### 8.2 ASR 设置
 
-发行版界面保留 ASR 参数区域，但 v1.0.0 正式用户路径实际锁定为：
+v1.0.0 正式用户发行界面的 **ASR 后端 / ASR 模型大小 / ASR 精度 / 语言** 锁定为：
 
 ```text
-ASR backend: auto
-ASR model size: large
-ASR precision: float32
-language: zh
+ASR backend = auto
+ASR model size = large
+ASR precision = float32
+language = zh
 ```
 
-`auto` 会进入本地 FunASR。
+`auto` 进入本地 FunASR。ASR 后端、模型大小和精度在最终发行界面中不可编辑，语言只有 `zh`。
 
-其中 `ASR 后端`、`ASR 模型大小` 与 `ASR 精度` 在最终 v1.0.0 用户发行界面 中被锁定为不可编辑；`语言` 只有 `zh` 一个可选值。它们不是普通用户的自由切换入口。
+### 8.3 高级设置参考
 
-### 15.3 音频切分参数
+这些设置全部保留在发行 UI 中，但普通 Few-shot 用户通常不需要修改。
 
-默认值：
+| 类别 | 参数 | 默认值 / 状态 | 使用边界 |
+| --- | --- | --- | --- |
+| 音频切分 | `threshold` | `-34` | 默认切片明显过长 / 过碎时再考虑调整 |
+| 音频切分 | `min_length` | `4000` | 同上 |
+| 音频切分 | `min_interval` | `300` | 同上 |
+| 音频切分 | `hop_size` | `10` | 同上 |
+| 音频切分 | `max_sil_kept` | `500` | 同上 |
+| 音频切分 | `normalize_max` | `0.9` | 同上 |
+| 音频切分 | `alpha_mix` | `0.25` | 同上 |
+| Stage1 | device | `cuda` | Stage1 数据构建使用的设备 |
+| Stage1 | Stage1 use_half | 开启 | 对应模型流程允许使用半精度 |
+| Stage1 | 覆盖已有 Stage1 cache | 关闭 | 显式重建 |
+| Stage1 | 构建后验证 dataset | 开启 | 构建后检查数据集契约 |
+| Stage2 | device | `cuda` | Stage2 数据处理使用的设备 |
+| Stage2 | Stage2 use_half | 关闭 | Stage2 `.pt` 处理精度 |
+| Stage2 | 覆盖已有 `.pt` | 关闭 | 强制重建对应产物 |
+| Stage2 | 覆盖 continuous cache | 关闭 | 强制重建对应产物 |
+| Stage2 | 覆盖 style cache | 关闭 | 强制重建对应产物 |
+| Stage2 | 覆盖 train/val | 关闭 | 强制重新划分 |
+| Stage2 | continuous dtype | `float32` | continuous semantic 缓存的数据类型 |
+| 校对器 | 端口 | `9871` | 端口冲突时才通常需要改 |
+| 校对器 | `g_batch` | `10` | 校对器批处理设置 |
+| 校对器 | 覆盖已有校对备份 | 关闭 | 控制是否覆盖已有备份 |
+| 校对器 | 重建 corrected manifest 时长容差 | `0.05` | 重建匹配容差 |
+| 校对器 | 重建超时秒数 | `600` | 校对后重建的超时设置 |
 
-| 参数 | 默认值 | 影响 |
-| --- | ---: | --- |
-| `threshold` | `-34` | 静音切分判定阈值 |
-| `min_length` | `4000` | 控制切分后片段的最小长度倾向 |
-| `min_interval` | `300` | 控制可用于切分的静音间隔 |
-| `hop_size` | `10` | 切分检测步长 |
-| `max_sil_kept` | `500` | 切分时保留静音的上限设置 |
-| `normalize_max` | `0.9` | 切片归一化目标幅度 |
-| `alpha_mix` | `0.25` | 原始波形与归一化结果的混合程度 |
+Stage2 参考音频选择的默认值已经在 §6.3 说明，这里不再重复。
 
-这组参数沿用 GPT-SoVITS 风格的静音切分逻辑。第一次使用不建议修改；只有当默认切片明显过长、过碎或静音保留不符合你的数据特征时，再考虑调整。
-
-### 15.4 Prompt 设置
-
-| 参数 | 默认值 | 作用 |
-| --- | ---: | --- |
-| `prompt_mode` | `speaker_pool` | Stage2 Prompt 选择方式 |
-| `allow_self_prompt` | 开启 | 允许使用样本自身作为 Prompt |
-| `min_prompt_sec` | `3.0` | Prompt 最短时长 |
-| `max_prompt_sec` | `10.0` | Prompt 最长时长 |
-| `prefer_prompt_sec` | `6.0` | 候选 Prompt 的优选时长 |
-
-除非你正在针对 Stage2 数据设计做实验，否则保持默认即可。
-
-### 15.5 Stage1 参数
-
-| 参数 | 默认值 | 说明 |
-| --- | ---: | --- |
-| Stage1 device | `cuda` | 使用 GPU 构建 Stage1 数据 |
-| Stage1 use_half | 开启 | 允许对应模型流程使用半精度 |
-| 覆盖已有 Stage1 cache | 关闭 | 显式重新构建已有 Stage1 cache |
-| 构建后验证 Stage1 dataset | 开启 | 构建完成后检查数据契约 |
-
-如果显卡或环境无法运行当前 GPU 路径，应优先参考 Compatibility / Troubleshooting，而不是随意修改其他参数组合。
-
-### 15.6 Stage2 / 缓存参数
-
-| 参数 | 默认值 | 说明 |
-| --- | ---: | --- |
-| device | `cuda` | Stage2 数据处理设备 |
-| Stage2 use_half | 关闭 | Stage2 `.pt` 预处理精度选择 |
-| 覆盖已有 Stage2 `.pt` | 关闭 | 强制重建 Stage2 `.pt` |
-| 覆盖已有 continuous cache | 关闭 | 强制重建 continuous cache |
-| 覆盖已有 style cache | 关闭 | 强制重建 style cache |
-| 覆盖已有 train/val | 关闭 | 强制重新划分 Stage2 训练 / 验证数据 |
-| continuous dtype | `float32` | continuous semantic 缓存数据类型 |
-
-续跑的默认设计是尽量复用已经完成的产物，因此这些覆盖选项正常情况下保持关闭。
-
-### 15.7 Mel / F0 参数
-
-默认值：
+Mel / F0 特征默认值：
 
 ```text
 target_sr = 22050
@@ -1159,115 +640,77 @@ f0_min_hz = 50.0
 f0_max_hz = 1100.0
 ```
 
-这些参数直接影响 Stage2 `.pt`、Mel / F0 等特征构建，应视为高级设置。
-
 > [!IMPORTANT]
-> 普通 Few-shot 用户不建议为了“试试效果”随意修改这组特征参数。它们与后续 Stage2 训练数据契约有关。
-
-### 15.8 人工校对设置
-
-| 设置 | 默认值 | 说明 |
-| --- | ---: | --- |
-| 校对器端口 | `9871` | 人工校对 WebUI 端口 |
-| `g_batch` | `10` | 校对器批处理设置 |
-| 覆盖已有校对备份 | 关闭 | 是否覆盖既有校对备份 |
-| 重建 corrected manifest 时长容差 | `0.05` | 重建校对后 manifest 时的时长匹配容差 |
-| 重建超时秒数 | `600` | 校对后重建步骤超时设置 |
-
-一般用户只需要在默认校对器端口发生占用时考虑修改端口。
+> Mel / F0 等特征参数直接参与 Stage2 数据契约。普通用户不建议为了“试效果”随意修改。
 
 ---
 
-## 16. 输出、日志与 Training 交接
+## 9. 工作目录、关键产物与 Training 交接
 
-### 16.1 如何确认 DataFactory 真正完成
+普通用户不需要记住所有内部文件。最重要的是当前工作目录（`work_dir`）、文本确认结果，以及 Stage1 / Stage2 是否已就绪。
 
-不要把“最后一个按钮没有报错”作为唯一判断。
-
-应该回到你的路线：
-
-- Stage1-only：Stage1 已就绪即可；
-- Stage2-only：Stage2 已就绪即可；
-- Full Few-shot：Stage1 与 Stage2 都已就绪。
-
-如果不确定，点击：
+### 9.1 用户需要知道的主要目录
 
 ```text
-载入/扫描工作目录
+{speaker_name}_factory/
+├── 00_uploaded_raw_audio/       # 仅上传模式使用
+├── 06_export/                   # clips / manifests
+├── 07_stage1_ft/                # Stage1 数据
+├── 07_stage2_pt_all/            # Stage2 .pt
+├── 08_continuous_semantic/
+├── 09_style_f0_spk/
+├── 10_train_val/
+├── 11_filter/
+└── logs/
 ```
 
-查看统一状态与推荐下一步。
+`01_uvr_*` 与 `02_denoise/` 也可能存在于基础目录结构中，但 v1.0.0 正式用户流程没有开放 UVR / denoise 功能；这些目录为空不代表失败。
 
-### 16.2 Training 使用同一个项目身份
+### 9.2 关键产物
 
-进入 Training 时继续使用同一个：
+| 产物 | 用户层含义 |
+| --- | --- |
+| `06_export/clips/` | 标准化切分后的训练音频 |
+| `06_export/manifest.jsonl` | 数据准备阶段的基础 manifest（数据清单） |
+| `06_export/dataset.list` | Stage1 / 校对流程的重要列表 |
+| `06_export/manifest.corrected.jsonl` | 文本确认后的主 manifest（数据清单） |
+| `06_export/stage2_manifest.fewshot.jsonl` | Stage2 Few-shot 正式 manifest（数据清单） |
+| `07_stage1_ft/` | Stage1 就绪所需的数据与缓存 |
+| `07_stage2_pt_all/` ～ `11_filter/` | Stage2 多阶段数据链 |
+| `11_filter/rejected/` | 被自动隔离的异常 Stage2 样本 |
+| `logs/` | 排查日志 |
 
-```text
-说话人 / 角色名
-```
+数据准备阶段还会产生初始 `stage2_manifest.jsonl` 等文件；它们不能单独证明 Stage2 已就绪。
 
-如果 DataFactory 使用默认工作目录规则，Training 也可以按该角色名找到：
+### 9.3 Training 使用同一个项目身份
 
-```text
-user_data/{speaker_name}_factory
-```
+进入 Training 时继续使用同一个 **说话人 / 角色名** 和工作目录（`work_dir`）：
 
-如果 DataFactory 使用了自定义 `work_dir`，Training 应填写同一个目录。
+- 默认规则：`user_data/{speaker_name}_factory`；
+- 如果 DataFactory 使用了自定义工作目录，Training 中填写同一个目录。
 
-DataFactory 只负责把路线需要的数据准备到可训练状态；epochs、batch size、模型检查点、Active Best 等留给 Training Guide。
-
-### 16.3 日志
-
-DataFactory 的主要运行日志集中在：
-
-```text
-{work_dir}/logs/
-```
-
-Stage1 还会记录独立的构建标准输出（stdout）/ 标准错误（stderr）与执行命令信息。出现失败时，优先从页面诊断信息定位失败步骤，再查看对应日志，而不是一次性检查整个项目所有文件。
+DataFactory 只负责把路线需要的数据准备到可训练状态；epochs、batch_size、模型检查点、Active Best 等属于 [Training Guide](./training.md)。
 
 ---
 
-## 17. 常见边界与安全操作
+## 10. 常见边界与安全操作
 
-### 17.1 支持格式不等于所有文件都能解码
-
-扩展名白名单只代表入口接受范围。内部编码格式（codec）、文件完整性和发布包内解码能力仍然会影响实际读取。
-
-### 17.2 不要把有损文件转 WAV 当作“恢复质量”
-
-MP3 / AAC 等文件转换成 WAV 后只是换成无损容器保存当前结果，并不会找回此前压缩丢失的音频信息。
-
-### 17.3 不要默认用覆盖选项解决所有问题
-
-工作目录的设计支持扫描和恢复。发生中断时先判断已有产物，再决定下一步：
-
-- Stage2 优先使用 `继续生成 Stage2 训练数据` 的基于已有产物的续跑；
-- Stage1 没有同等的续跑能力；部分完成的 Stage1 需要确认后显式授权 `覆盖已有 Stage1 cache` 才能重建。
-
-### 17.4 不要关闭 WebUI 主启动终端
-
-主启动终端负责 WebUI 进程；只读进度终端则可以按需关闭。
-
-### 17.5 人工校对器使用专用关闭按钮
-
-`停止当前任务` 与 `关闭人工校对器` 有不同进程职责。
-
-### 17.6 部分 Few-shot 路线是合法路线
-
-Stage1-only 和 Stage2-only 都是当前正式支持的组合。DataFactory 不要求一定同时把 Stage1 与 Stage2 全部做完。
-
-### 17.7 `zh + 本地 FunASR` 是 v1.0.0 限制
-
-不要把当前发行版仅支持中文的 DataFactory 约束理解为 Resonastra 未来版本的永久能力边界。
+| 容易误解的行为 | 正确理解 |
+| --- | --- |
+| 支持扩展名 = 一定能解码 | 错。编码格式、封装和文件完整性仍会影响读取 |
+| MP3 / AAC 转 WAV = 恢复质量 | 错。转容器不会恢复有损编码丢失的信息 |
+| Stage1 部分完成后可以直接续跑 | 错。Stage1 不支持 Stage2 式的基于已有产物续跑，需要显式启用覆盖后重建 |
+| Stage2 中断后默认从头重跑 | 不建议。先扫描，再使用 `继续生成 Stage2 训练数据` |
+| 关闭进度终端 = 停止任务 | 错。只读进度终端可以关闭；真正的停止操作需要通过 WebUI 中的停止功能执行 |
+| `停止当前任务` 会关闭校对器 | 错。人工校对器有独立关闭按钮 |
+| Few-shot 必须 Stage1 + Stage2 都完成 | 错。Stage1-only / Stage2-only 都是正式支持路线 |
+| 当前 `zh + 本地 FunASR` = 永久产品能力 | 错。这是 Resonastra v1.0.0 的发行边界 |
 
 ---
 
-## 18. 下一步与相关文档
+## 11. 下一步与相关文档
 
-完成 DataFactory 后，下一步是进入 Training。
-
-当前推荐阅读顺序：
+完成 DataFactory 后，下一步是进入 Training：
 
 ```text
 Quick Start
@@ -1282,6 +725,7 @@ Inference
 相关文档：
 
 - [快速开始](./quick-start.md)
-- Training Guide（尚未发布）
+- [Training Guide](./training.md)
+- [Inference Guide](./inference.md)
 - Compatibility Guide（尚未发布）
 - Troubleshooting Guide（尚未发布）
