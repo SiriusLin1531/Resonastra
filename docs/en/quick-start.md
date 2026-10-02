@@ -904,4 +904,4 @@ More detailed documentation will cover:
 - **Training** — training parameters, Live Monitor, checkpoints, and Active Best
 - **Inference** — Voice Profiles, inference controls, and quality evaluation
 - [**Compatibility**](./compatibility.md) — Windows, runtime, GPU, and CUDA support boundaries
-- **Release Verification** — ZIP, SHA256, and official package verification
+- [**Release Verification**](./release-verification.md) — ZIP, SHA256, and official package verification

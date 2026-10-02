@@ -129,7 +129,7 @@ The README provides the main entry points. Full documentation will be organized 
 - [**Training**](./docs/en/training.md) — Stage1 / Stage2 training workflow
 - [**Inference**](./docs/en/inference.md) — Voice Profiles and speech generation
 - [**Compatibility**](./docs/en/compatibility.md) — Windows, runtime, GPU, and CUDA support boundaries
-- **Release Verification** — SHA256 and official package verification
+- [**Release Verification**](./docs/en/release-verification.md) — SHA256 and official package verification
 
 Detailed documentation will be added progressively.
 

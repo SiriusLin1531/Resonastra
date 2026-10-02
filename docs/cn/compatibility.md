@@ -247,7 +247,7 @@ Inference 如果 `7860` 被其它程序占用，应先处理端口冲突后再�
 | Training 启动、失败、Stop、Trainer Best / Active Best、历史模型检查点 | [Training 使用指南](./training.md) |
 | Voice Profile、参考音频、推理失败、超时、质量检测与生成结果 | [Inference 使用指南](./inference.md) |
 | Windows、VC++、内置运行环境、GPU / CUDA、RTX 50 / `sm_120` | **本指南** |
-| 下载文件完整性与正式发行身份 | Release Verification Guide（尚未发布） |
+| 下载文件完整性与正式发行身份 | [Release Verification Guide](./release-verification.md) |
 
 如果问题跨越多个组件，优先从**第一个明确失败点**开始。例如 DataFactory 已成功而 Training 启动失败，应先看 Training，而不是重新排查已经成功的数据准备流程。
 

@@ -834,4 +834,4 @@ outputs/inference_runs/
 - **Training** — 训练参数、实时监控、模型检查点与 Active Best
 - **Inference** — Voice Profile、推理参数与质量评估
 - [**Compatibility**](./compatibility.md) — Windows、运行环境、GPU 与 CUDA 支持边界
-- **Release Verification** — ZIP、SHA256 与正式发布包校验
+- [**Release Verification**](./release-verification.md) — ZIP、SHA256 与正式发布包校验

@@ -255,7 +255,7 @@ To avoid maintaining the same issue in multiple documents, component-specific fa
 | Training launch/failure, Stop, Trainer Best / Active Best, historical checkpoints | [Training Guide](./training.md) |
 | Voice Profile, reference audio, generation failure, timeout, quality evaluation, output issues | [Inference Guide](./inference.md) |
 | Windows, VC++, bundled runtime, GPU / CUDA, RTX 50 / `sm_120` | **This guide** |
-| Download integrity and official-release identity | Release Verification Guide (not yet published) |
+| Download integrity and official-release identity | [Release Verification Guide](./release-verification.md) |
 
 If an issue crosses multiple components, start from the **first clear failure point**. For example, if DataFactory completed successfully but Training does not start, begin with the Training Guide rather than rechecking a data-preparation flow that already succeeded.
 
