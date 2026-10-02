@@ -28,7 +28,7 @@ After completing the steps required by your selected route, you should be able t
 - generate the Voice Profile required for Stage1-only, Stage2-only, or Full Few-shot;
 - hand the Voice Profile to Inference.
 
-This guide does not cover raw audio, ASR, dataset construction, general GPU / CUDA compatibility, Stage1 / Stage2 training-algorithm theory, research-oriented hyperparameter tuning, or comprehensive symptom-based troubleshooting.
+This guide does not cover raw audio, ASR, dataset construction, general GPU / CUDA compatibility, Stage1 / Stage2 training-algorithm theory, or research-oriented hyperparameter tuning. Training-specific failures and recovery are covered in the relevant sections of this guide.
 
 ---
 
@@ -866,7 +866,7 @@ If a training run enters `failed` after launch:
 3. then inspect `training_stdout.log`;
 4. inspect `training_command.json` if you need to confirm the effective parameters.
 
-If the error contains CUDA unavailable, `CUDA out of memory`, or similar GPU failures, reduce `batch_size` first. GPU / CUDA support belongs to Compatibility / Troubleshooting; do not work around the error by editing release-managed internal model configuration.
+If the error contains CUDA unavailable, `CUDA out of memory`, or similar GPU failures, reduce `batch_size` first. GPU / CUDA support belongs to the [Compatibility Guide](./compatibility.md); do not work around the error by editing release-managed internal model configuration.
 
 ### 11.3 Active Best Does Not Change
 
@@ -910,5 +910,4 @@ Related documentation:
 - [Quick Start](./quick-start.md)
 - [DataFactory Guide](./data-factory.md)
 - [Inference Guide](./inference.md)
-- Compatibility Guide (not yet published)
-- Troubleshooting Guide (not yet published)
+- [Compatibility Guide](./compatibility.md)

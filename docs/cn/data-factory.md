@@ -25,7 +25,7 @@ Resonastra 的 DataFactory 负责把用户提供的原始语音整理成可以�
 - 在中断后按正确方式恢复；
 - 判断当前路线是否已经可以进入 Training。
 
-本指南不展开 Training 参数、模型检查点 / Active Best、Voice Profile、Inference 参数、GPU / CUDA 兼容性政策或完整故障排查。
+本指南不展开 Training 参数、模型检查点 / Active Best、Voice Profile、Inference 参数或通用 GPU / CUDA 兼容性政策。DataFactory 自身的恢复与诊断规则在本文对应章节说明。
 
 ---
 
@@ -727,5 +727,4 @@ Inference
 - [快速开始](./quick-start.md)
 - [Training Guide](./training.md)
 - [Inference Guide](./inference.md)
-- Compatibility Guide（尚未发布）
-- Troubleshooting Guide（尚未发布）
+- [Compatibility Guide](./compatibility.md)

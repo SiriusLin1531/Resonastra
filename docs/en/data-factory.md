@@ -25,7 +25,7 @@ After completing the steps required by your selected route, you should be able t
 - recover correctly after an interrupted task;
 - determine whether the data required by your route is ready for Training.
 
-This guide does not cover Training parameters, checkpoint / Active Best management, Voice Profiles, Inference parameters, GPU / CUDA compatibility policy, or comprehensive troubleshooting.
+This guide does not cover Training parameters, checkpoint / Active Best management, Voice Profiles, Inference parameters, or general GPU / CUDA compatibility policy. DataFactory-specific recovery and diagnostics are covered in the relevant sections of this guide.
 
 ---
 
@@ -757,5 +757,4 @@ Related documentation:
 - [Quick Start](./quick-start.md)
 - [Training Guide](./training.md)
 - [Inference Guide](./inference.md)
-- Compatibility Guide (not yet published)
-- Troubleshooting Guide (not yet published)
+- [Compatibility Guide](./compatibility.md)

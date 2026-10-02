@@ -20,7 +20,7 @@ This guide is for users who already have a Voice Profile ready and want to gener
 - adjust advanced parameters or enable quality checks when needed;
 - inspect diagnostics after a failure and return to a reproducible baseline configuration.
 
-This guide does not cover DataFactory data preparation, Stage1 / Stage2 training, the Voice Profile training workflow, the full GPU / CUDA compatibility policy, model-architecture theory, or a complete troubleshooting matrix. Those topics belong to the corresponding documentation.
+This guide does not cover DataFactory data preparation, Stage1 / Stage2 training, the Voice Profile training workflow, the full GPU / CUDA compatibility policy, or model-architecture theory. Inference-specific input, generation, and quality-evaluation issues are covered in the diagnostic sections of this guide.
 
 ---
 
@@ -453,7 +453,7 @@ If the final result shows `生成失败` ("Generation Failed"), troubleshoot in 
 
 If basic generation finishes within 600 seconds but timeout occurs only after enabling a quality check, enable one metric at a time to distinguish generation time from evaluation time.
 
-Symptom-by-symptom troubleshooting will be covered in the Troubleshooting Guide.
+For additional Inference troubleshooting, continue with this section and the related sections of this guide. For general runtime, GPU, or CUDA issues, use the [Compatibility Guide](./compatibility.md).
 
 ---
 
@@ -476,5 +476,4 @@ Related documentation:
 - [Quick Start](./quick-start.md)
 - [DataFactory Guide](./data-factory.md)
 - [Training Guide](./training.md)
-- Compatibility Guide (not yet published)
-- Troubleshooting Guide (not yet published)
+- [Compatibility Guide](./compatibility.md)

@@ -35,7 +35,7 @@ Choose a Route
                                       Generated Audio
 ```
 
-This Quick Start follows the standard user workflow and default settings. Dataset quality, training parameters, checkpoint management, GPU / CUDA compatibility, and detailed troubleshooting are covered in separate documentation.
+This Quick Start follows the standard user workflow and default settings. Dataset quality, training parameters, and checkpoint management are covered by the relevant component guides; GPU / CUDA and runtime compatibility are covered by the [Compatibility Guide](./compatibility.md).
 
 ---
 
@@ -903,6 +903,5 @@ More detailed documentation will cover:
 - **DataFactory** — data preparation, ASR, manual proofreading, and Stage1 / Stage2 dataset generation
 - **Training** — training parameters, Live Monitor, checkpoints, and Active Best
 - **Inference** — Voice Profiles, inference controls, and quality evaluation
-- **Compatibility** — GPU, CUDA, and runtime environment
-- **Troubleshooting** — startup, CUDA, ASR, training, and inference issues
+- [**Compatibility**](./compatibility.md) — Windows, runtime, GPU, and CUDA support boundaries
 - **Release Verification** — ZIP, SHA256, and official package verification

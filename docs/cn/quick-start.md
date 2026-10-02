@@ -30,7 +30,7 @@
                                       生成音频
 ```
 
-本指南使用正常用户流程和默认设置。数据质量、训练参数、模型检查点管理、GPU / CUDA 兼容性和详细故障排查将在独立文档中说明。
+本指南使用正常用户流程和默认设置。数据质量、训练参数和模型检查点管理由对应组件指南说明；GPU / CUDA 与运行环境兼容性由 [Compatibility Guide](./compatibility.md) 说明。
 
 ---
 
@@ -66,7 +66,7 @@ v1.0.0 的 DataFactory 当前只开放中文 `zh` 数据准备流程。
 这些属于训练数据质量建议，而不是 DataFactory 的强制输入限制。
 
 > [!IMPORTANT]
-> Resonastra v1.0.0 集成的运行环境为 Python 3.10.20、PyTorch 2.5.1 和 CUDA Runtime 11.8。环境检查通过并不代表所有新架构 GPU 都已经通过实际 CUDA 内核验证。如果你使用 RTX 50 系列等新架构 GPU，请先阅读[项目 README](https://github.com/SiriusLin1531/Resonastra/blob/main/docs/cn/README.md)中的兼容性说明。
+> Resonastra v1.0.0 集成的运行环境为 Python 3.10.20、PyTorch 2.5.1 和 CUDA Runtime 11.8。环境检查通过并不代表所有新架构 GPU 都已经通过实际 CUDA 内核验证。如果你使用 RTX 50 系列等新架构 GPU，请先阅读 [Compatibility Guide](./compatibility.md)。
 
 ---
 
@@ -833,6 +833,5 @@ outputs/inference_runs/
 - **DataFactory** — 数据准备、ASR、人工校对与 Stage1 / Stage2 数据处理
 - **Training** — 训练参数、实时监控、模型检查点与 Active Best
 - **Inference** — Voice Profile、推理参数与质量评估
-- **Compatibility** — GPU、CUDA 与运行环境
-- **Troubleshooting** — 启动、CUDA、ASR、训练与推理问题
+- [**Compatibility**](./compatibility.md) — Windows、运行环境、GPU 与 CUDA 支持边界
 - **Release Verification** — ZIP、SHA256 与正式发布包校验

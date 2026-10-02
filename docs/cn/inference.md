@@ -20,7 +20,7 @@
 - 在需要时调整高级参数或开启质量检测；
 - 在失败时查看诊断信息并回到可复现的基准配置。
 
-本指南不展开 DataFactory 数据准备、Stage1 / Stage2 训练、Voice Profile 训练过程、完整 GPU / CUDA 兼容性政策、模型结构理论或完整 Troubleshooting 矩阵。这些内容由对应文档承担。
+本指南不展开 DataFactory 数据准备、Stage1 / Stage2 训练、Voice Profile 训练过程、完整 GPU / CUDA 兼容性政策或模型结构理论。Inference 自身的输入、生成失败与质量检测问题在本文诊断章节说明。
 
 ---
 
@@ -445,7 +445,7 @@ compute_type = int8
 
 如果基础生成能在 600 秒内完成，但只在开启某个质量检测后超时，可以单独开启一个指标复测，以区分生成耗时和验收耗时。
 
-完整按症状排查将进入 Troubleshooting Guide。
+更完整的 Inference 排查仍以本节和本文相关章节为准；通用环境、GPU / CUDA 问题请查看 [Compatibility Guide](./compatibility.md)。
 
 ---
 
@@ -468,5 +468,4 @@ Inference
 - [快速开始](./quick-start.md)
 - [DataFactory 使用指南](./data-factory.md)
 - [Training 使用指南](./training.md)
-- Compatibility Guide（尚未发布）
-- Troubleshooting Guide（尚未发布）
+- [Compatibility Guide](./compatibility.md)

@@ -28,7 +28,7 @@ Resonastra 的 Training 负责把 DataFactory 已经准备好的 Stage1 / Stage2
 - 生成与 Stage1-only、Stage2-only 或 Full Few-shot 对应的 Voice Profile；
 - 将 Voice Profile 交给 Inference。
 
-本指南不展开原始音频、ASR、数据构建、GPU / CUDA 通用兼容性、模型训练算法理论、研究型超参数调优或完整按症状故障排查。
+本指南不展开原始音频、ASR、数据构建、GPU / CUDA 通用兼容性、模型训练算法理论或研究型超参数调优。Training 自身的失败与恢复规则在本文对应章节说明。
 
 ---
 
@@ -848,7 +848,7 @@ Voice Profile 生成成功
 3. 再查看 `training_stdout.log`；
 4. 如需确认实际参数，查看 `training_command.json`。
 
-如果出现 CUDA unavailable、`CUDA out of memory` 或类似 GPU 错误，可以先降低 `batch_size`。GPU / CUDA 支持范围应参考 Compatibility / Troubleshooting，不建议为了绕过错误直接修改发行版内部模型配置。
+如果出现 CUDA unavailable、`CUDA out of memory` 或类似 GPU 错误，可以先降低 `batch_size`。GPU / CUDA 支持范围应参考 [Compatibility Guide](./compatibility.md)，不建议为了绕过错误直接修改发行版内部模型配置。
 
 ### 11.3 Active Best 没变化
 
@@ -892,5 +892,4 @@ Inference
 - [快速开始](./quick-start.md)
 - [DataFactory 使用指南](./data-factory.md)
 - [Inference Guide](./inference.md)
-- Compatibility Guide（尚未发布）
-- Troubleshooting Guide（尚未发布）
+- [Compatibility Guide](./compatibility.md)
