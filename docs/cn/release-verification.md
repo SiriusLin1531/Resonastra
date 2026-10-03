@@ -1,6 +1,6 @@
 # Resonastra 版本校验指南
 
-[项目 README](./README.md) | [快速开始](./quick-start.md) | [Compatibility](./compatibility.md) | [English](../en/release-verification.md) | **中文简体**
+[项目 README](./README.md) | [快速开始](./quick-start.md) | [数据准备](./data-factory.md) | [模型训练](./training.md) | [语音生成](./inference.md) | [兼容性](./compatibility.md) | **版本校验** | [English](../en/release-verification.md) | **中文简体**
 
 适用版本：**Resonastra v1.0.0**
 
@@ -21,7 +21,7 @@
 - 说明 GitHub Release、`v1.0.0` tag 与当前 `main` 的关系；
 - 说明校验失败时应如何处理。
 
-安装、解压后的首次启动请继续查看 [快速开始](./quick-start.md)。Windows、GPU 与 CUDA 支持范围请查看 [Compatibility](./compatibility.md)。
+安装、解压后的首次启动请继续查看 [快速开始](./quick-start.md)。Windows、GPU 与 CUDA 支持范围请查看 [兼容性指南](./compatibility.md)。
 
 ---
 
@@ -155,6 +155,6 @@ f4d39c7c901d60d018d887f6e66c4357af2dd6f4
 
 1. 解压 `Resonastra_v1.0.0.zip`；
 2. 按 [快速开始](./quick-start.md) 完成环境检查和第一次启动；
-3. 如果后续遇到 Windows、运行环境、GPU 或 CUDA 兼容性问题，查看 [Compatibility](./compatibility.md)。
+3. 如果后续遇到 Windows、运行环境、GPU 或 CUDA 兼容性问题，查看 [兼容性指南](./compatibility.md)。
 
 如果校验未通过，请先重新下载并再次确认 SHA256，再进入后续使用流程。

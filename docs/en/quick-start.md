@@ -1,6 +1,6 @@
 # Resonastra Quick Start
 
-[Project README](https://github.com/SiriusLin1531/Resonastra/blob/main/README.md) | **English** | [中文简体](../cn/quick-start.md)
+[Project README](../../README.md) | **Quick Start** | [DataFactory](./data-factory.md) | [Training](./training.md) | [Inference](./inference.md) | [Compatibility](./compatibility.md) | [Release Verification](./release-verification.md) | **English** | [中文简体](../cn/quick-start.md)
 
 Applies to: **Resonastra v1.0.0**
 
@@ -898,10 +898,10 @@ For Few-shot:
 - **Stage2-only** is supported, but is usually not recommended purely from a time-cost perspective
 - **Full Few-shot** is the current recommended complete personalization route
 
-More detailed documentation will cover:
+Related documentation:
 
-- **DataFactory** — data preparation, ASR, manual proofreading, and Stage1 / Stage2 dataset generation
-- **Training** — training parameters, Live Monitor, checkpoints, and Active Best
-- **Inference** — Voice Profiles, inference controls, and quality evaluation
+- [**DataFactory**](./data-factory.md) — data preparation, ASR, manual proofreading, and Stage1 / Stage2 dataset generation
+- [**Training**](./training.md) — training parameters, Live Monitor, checkpoints, and Active Best
+- [**Inference**](./inference.md) — Voice Profiles, inference controls, and quality evaluation
 - [**Compatibility**](./compatibility.md) — Windows, runtime, GPU, and CUDA support boundaries
 - [**Release Verification**](./release-verification.md) — ZIP, SHA256, and official package verification

@@ -1,6 +1,6 @@
-# Resonastra Training 使用指南
+# Resonastra 模型训练指南（Training）
 
-[项目 README](./README.md) | [快速开始](./quick-start.md) | [DataFactory](./data-factory.md) | **中文简体**
+[项目 README](./README.md) | [快速开始](./quick-start.md) | [数据准备](./data-factory.md) | **模型训练** | [语音生成](./inference.md) | [兼容性](./compatibility.md) | [版本校验](./release-verification.md) | [English](../en/training.md) | **中文简体**
 
 适用版本：**Resonastra v1.0.0**
 
@@ -848,7 +848,7 @@ Voice Profile 生成成功
 3. 再查看 `training_stdout.log`；
 4. 如需确认实际参数，查看 `training_command.json`。
 
-如果出现 CUDA unavailable、`CUDA out of memory` 或类似 GPU 错误，可以先降低 `batch_size`。GPU / CUDA 支持范围应参考 [Compatibility Guide](./compatibility.md)，不建议为了绕过错误直接修改发行版内部模型配置。
+如果出现 CUDA unavailable、`CUDA out of memory` 或类似 GPU 错误，可以先降低 `batch_size`。GPU / CUDA 支持范围应参考 [兼容性指南](./compatibility.md)，不建议为了绕过错误直接修改发行版内部模型配置。
 
 ### 11.3 Active Best 没变化
 
@@ -890,6 +890,6 @@ Inference
 相关文档：
 
 - [快速开始](./quick-start.md)
-- [DataFactory 使用指南](./data-factory.md)
-- [Inference Guide](./inference.md)
-- [Compatibility Guide](./compatibility.md)
+- [数据准备指南（DataFactory）](./data-factory.md)
+- [语音生成指南（Inference）](./inference.md)
+- [兼容性指南](./compatibility.md)

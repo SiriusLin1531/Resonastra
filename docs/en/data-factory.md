@@ -1,6 +1,6 @@
 # Resonastra DataFactory Guide
 
-[Project README](https://github.com/SiriusLin1531/Resonastra/blob/main/README.md) | [Quick Start](./quick-start.md) | **English** | [中文简体](../cn/data-factory.md)
+[Project README](../../README.md) | [Quick Start](./quick-start.md) | **DataFactory** | [Training](./training.md) | [Inference](./inference.md) | [Compatibility](./compatibility.md) | [Release Verification](./release-verification.md) | **English** | [中文简体](../cn/data-factory.md)
 
 Applies to: **Resonastra v1.0.0**
 

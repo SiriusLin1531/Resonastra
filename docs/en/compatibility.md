@@ -1,6 +1,6 @@
 # Resonastra Compatibility Guide
 
-[Project README](https://github.com/SiriusLin1531/Resonastra/blob/main/README.md) | [Quick Start](./quick-start.md) | [DataFactory](./data-factory.md) | [Training](./training.md) | [Inference](./inference.md) | **English** | [中文简体](../cn/compatibility.md)
+[Project README](../../README.md) | [Quick Start](./quick-start.md) | [DataFactory](./data-factory.md) | [Training](./training.md) | [Inference](./inference.md) | **Compatibility** | [Release Verification](./release-verification.md) | **English** | [中文简体](../cn/compatibility.md)
 
 Applies to: **Resonastra v1.0.0**
 

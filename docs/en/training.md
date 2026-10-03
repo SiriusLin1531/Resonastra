@@ -1,6 +1,6 @@
 # Resonastra Training Guide
 
-[Project README](https://github.com/SiriusLin1531/Resonastra/blob/main/README.md) | [Quick Start](./quick-start.md) | [DataFactory](./data-factory.md) | **English** | [中文简体](../cn/training.md)
+[Project README](../../README.md) | [Quick Start](./quick-start.md) | [DataFactory](./data-factory.md) | **Training** | [Inference](./inference.md) | [Compatibility](./compatibility.md) | [Release Verification](./release-verification.md) | **English** | [中文简体](../cn/training.md)
 
 Applies to: **Resonastra v1.0.0**
 

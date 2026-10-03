@@ -1,6 +1,6 @@
 # Resonastra Inference Guide
 
-[Project README](https://github.com/SiriusLin1531/Resonastra/blob/main/README.md) | [Quick Start](./quick-start.md) | [DataFactory](./data-factory.md) | [Training](./training.md) | **English** | [中文简体](../cn/inference.md)
+[Project README](../../README.md) | [Quick Start](./quick-start.md) | [DataFactory](./data-factory.md) | [Training](./training.md) | **Inference** | [Compatibility](./compatibility.md) | [Release Verification](./release-verification.md) | **English** | [中文简体](../cn/inference.md)
 
 Applies to: **Resonastra v1.0.0**
 

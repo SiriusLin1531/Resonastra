@@ -52,14 +52,15 @@ Resonastra 是一个面向 Windows 的本地语音训练与文本转语音工具
 
 ## 快速开始
 
-Resonastra 同时支持 **Zero-shot（无需训练，直接使用基础模型推理）** 与 **Few-shot（使用自己的语音数据微调后推理）**。
-
 1. 下载并解压 `Resonastra_v1.0.0.zip`。
 2. 运行 `launch_check_env.bat` 完成环境检查。
-3. 如果希望最快体验，可直接运行 `launch_infer_ui.bat` 并使用内置 Zero-shot Profile。
-4. 如果希望进行个性化训练，则继续进入 DataFactory 与 Training，再返回 Inference 生成语音。
+3. 运行 `launch_data_factory_ui.bat` 准备训练数据。
+4. 运行 `launch_training_ui.bat` 完成 Stage1 / Stage2 训练。
+5. 运行 `launch_infer_ui.bat` 生成语音。
 
-完整路线选择、首次使用要求与操作流程请参阅[快速开始文档](./quick-start.md)。
+首次使用建议先完成环境检查，再依次进入 DataFactory、Training 和 Inference。
+
+完整操作将在独立 Quick Start 文档中说明。
 
 ## 工作流程
 
@@ -122,16 +123,14 @@ CUDA Toolkit 从 12.8 开始加入 `sm_120` 编译支持，PyTorch 从 2.7 开�
 
 ## 使用文档
 
-README 仅提供快速入口，完整文档将按功能拆分：
+README 仅提供快速入口，当前用户文档按功能划分如下：
 
 - [**快速开始**](./quick-start.md) — 从下载到第一次生成语音
-- [**DataFactory**](./data-factory.md) — 数据准备、ASR 与文本校对
-- [**Training**](./training.md) — Stage1 / Stage2 训练流程
-- [**Inference**](./inference.md) — 声音配置与语音生成
-- [**Compatibility**](./compatibility.md) — Windows、运行环境、GPU 与 CUDA 支持边界
-- [**版本校验**](./release-verification.md) — SHA256 与正式发布包验证
-
-详细文档将逐步补充。
+- [**数据准备指南（DataFactory）**](./data-factory.md) — 数据准备、ASR 与文本校对
+- [**模型训练指南（Training）**](./training.md) — Stage1 / Stage2 训练流程
+- [**语音生成指南（Inference）**](./inference.md) — 声音配置与语音生成
+- [**兼容性指南**](./compatibility.md) — Windows、运行环境、GPU 与 CUDA 支持边界
+- [**版本校验指南**](./release-verification.md) — SHA256 与正式发布包验证
 
 ## 本地运行与隐私
 

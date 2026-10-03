@@ -1,6 +1,6 @@
 # Resonastra 快速开始
 
-[项目 README](https://github.com/SiriusLin1531/Resonastra/blob/main/docs/cn/README.md) | [English](../en/quick-start.md) | **中文简体**
+[项目 README](./README.md) | **快速开始** | [数据准备](./data-factory.md) | [模型训练](./training.md) | [语音生成](./inference.md) | [兼容性](./compatibility.md) | [版本校验](./release-verification.md) | [English](../en/quick-start.md) | **中文简体**
 
 适用版本：**Resonastra v1.0.0**
 
@@ -30,7 +30,7 @@
                                       生成音频
 ```
 
-本指南使用正常用户流程和默认设置。数据质量、训练参数和模型检查点管理由对应组件指南说明；GPU / CUDA 与运行环境兼容性由 [Compatibility Guide](./compatibility.md) 说明。
+本指南使用正常用户流程和默认设置。数据质量、训练参数和模型检查点管理由对应组件指南说明；GPU / CUDA 与运行环境兼容性由 [兼容性指南](./compatibility.md) 说明。
 
 ---
 
@@ -66,7 +66,7 @@ v1.0.0 的 DataFactory 当前只开放中文 `zh` 数据准备流程。
 这些属于训练数据质量建议，而不是 DataFactory 的强制输入限制。
 
 > [!IMPORTANT]
-> Resonastra v1.0.0 集成的运行环境为 Python 3.10.20、PyTorch 2.5.1 和 CUDA Runtime 11.8。环境检查通过并不代表所有新架构 GPU 都已经通过实际 CUDA 内核验证。如果你使用 RTX 50 系列等新架构 GPU，请先阅读 [Compatibility Guide](./compatibility.md)。
+> Resonastra v1.0.0 集成的运行环境为 Python 3.10.20、PyTorch 2.5.1 和 CUDA Runtime 11.8。环境检查通过并不代表所有新架构 GPU 都已经通过实际 CUDA 内核验证。如果你使用 RTX 50 系列等新架构 GPU，请先阅读 [兼容性指南](./compatibility.md)。
 
 ---
 
@@ -828,10 +828,10 @@ outputs/inference_runs/
 - **Stage2-only** 技术上受支持，但从时间成本角度通常不建议单独选择
 - **Full Few-shot** 是当前推荐的完整个性化训练路线
 
-后续文档将进一步说明：
+相关文档：
 
-- **DataFactory** — 数据准备、ASR、人工校对与 Stage1 / Stage2 数据处理
-- **Training** — 训练参数、实时监控、模型检查点与 Active Best
-- **Inference** — Voice Profile、推理参数与质量评估
-- [**Compatibility**](./compatibility.md) — Windows、运行环境、GPU 与 CUDA 支持边界
-- [**Release Verification**](./release-verification.md) — ZIP、SHA256 与正式发布包校验
+- [**数据准备指南（DataFactory）**](./data-factory.md) — 数据准备、ASR、人工校对与 Stage1 / Stage2 数据处理
+- [**模型训练指南（Training）**](./training.md) — 训练参数、实时监控、模型检查点与 Active Best
+- [**语音生成指南（Inference）**](./inference.md) — Voice Profile、推理参数与质量评估
+- [**兼容性指南**](./compatibility.md) — Windows、运行环境、GPU 与 CUDA 支持边界
+- [**版本校验指南**](./release-verification.md) — ZIP、SHA256 与正式发布包校验

@@ -1,6 +1,6 @@
-# Resonastra Inference 使用指南
+# Resonastra 语音生成指南（Inference）
 
-[项目 README](./README.md) | [快速开始](./quick-start.md) | [DataFactory](./data-factory.md) | [Training](./training.md) | **中文简体**
+[项目 README](./README.md) | [快速开始](./quick-start.md) | [数据准备](./data-factory.md) | [模型训练](./training.md) | **语音生成** | [兼容性](./compatibility.md) | [版本校验](./release-verification.md) | [English](../en/inference.md) | **中文简体**
 
 适用版本：**Resonastra v1.0.0**
 
@@ -445,7 +445,7 @@ compute_type = int8
 
 如果基础生成能在 600 秒内完成，但只在开启某个质量检测后超时，可以单独开启一个指标复测，以区分生成耗时和验收耗时。
 
-更完整的 Inference 排查仍以本节和本文相关章节为准；通用环境、GPU / CUDA 问题请查看 [Compatibility Guide](./compatibility.md)。
+更完整的 Inference 排查仍以本节和本文相关章节为准；通用环境、GPU / CUDA 问题请查看 [兼容性指南](./compatibility.md)。
 
 ---
 
@@ -466,6 +466,6 @@ Inference
 相关文档：
 
 - [快速开始](./quick-start.md)
-- [DataFactory 使用指南](./data-factory.md)
-- [Training 使用指南](./training.md)
-- [Compatibility Guide](./compatibility.md)
+- [数据准备指南（DataFactory）](./data-factory.md)
+- [模型训练指南（Training）](./training.md)
+- [兼容性指南](./compatibility.md)

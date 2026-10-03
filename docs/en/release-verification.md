@@ -1,6 +1,6 @@
 # Resonastra Release Verification Guide
 
-[Project README](https://github.com/SiriusLin1531/Resonastra/blob/main/README.md) | [Quick Start](./quick-start.md) | [Compatibility](./compatibility.md) | **English** | [中文简体](../cn/release-verification.md)
+[Project README](../../README.md) | [Quick Start](./quick-start.md) | [DataFactory](./data-factory.md) | [Training](./training.md) | [Inference](./inference.md) | [Compatibility](./compatibility.md) | **Release Verification** | **English** | [中文简体](../cn/release-verification.md)
 
 Applies to: **Resonastra v1.0.0**
 

@@ -1,6 +1,6 @@
 # Resonastra 兼容性指南
 
-[项目 README](./README.md) | [快速开始](./quick-start.md) | [DataFactory](./data-factory.md) | [Training](./training.md) | [Inference](./inference.md) | **中文简体**
+[项目 README](./README.md) | [快速开始](./quick-start.md) | [数据准备](./data-factory.md) | [模型训练](./training.md) | [语音生成](./inference.md) | **兼容性** | [版本校验](./release-verification.md) | [English](../en/compatibility.md) | **中文简体**
 
 适用版本：**Resonastra v1.0.0**
 
@@ -152,7 +152,7 @@ Training 默认同样面向 CUDA，但用户界面不提供通用设备切换入
 
 `CUDA out of memory` 表示显存资源不足，不等同于 GPU 架构不受支持。
 
-如果 OOM 发生在 Training，应按照 [Training 使用指南](./training.md) 中的显存与 `batch_size` 建议处理；不要把 OOM 当成 RTX 50 / CUDA 架构兼容性问题。
+如果 OOM 发生在 Training，应按照 [模型训练指南（Training）](./training.md) 中的显存与 `batch_size` 建议处理；不要把 OOM 当成 RTX 50 / CUDA 架构兼容性问题。
 
 ---
 
@@ -243,11 +243,11 @@ Inference 如果 `7860` 被其它程序占用，应先处理端口冲突后再�
 | 问题类型 | 建议查看 |
 | --- | --- |
 | 下载、解压、第一次启动、基础路线选择 | [快速开始](./quick-start.md) |
-| 原始音频、ASR、人工校对、Stage1 / Stage2 数据生成与续跑 | [DataFactory 使用指南](./data-factory.md) |
-| Training 启动、失败、Stop、Trainer Best / Active Best、历史模型检查点 | [Training 使用指南](./training.md) |
-| Voice Profile、参考音频、推理失败、超时、质量检测与生成结果 | [Inference 使用指南](./inference.md) |
+| 原始音频、ASR、人工校对、Stage1 / Stage2 数据生成与续跑 | [数据准备指南（DataFactory）](./data-factory.md) |
+| Training 启动、失败、Stop、Trainer Best / Active Best、历史模型检查点 | [模型训练指南（Training）](./training.md) |
+| Voice Profile、参考音频、推理失败、超时、质量检测与生成结果 | [语音生成指南（Inference）](./inference.md) |
 | Windows、VC++、内置运行环境、GPU / CUDA、RTX 50 / `sm_120` | **本指南** |
-| 下载文件完整性与正式发行身份 | [Release Verification Guide](./release-verification.md) |
+| 下载文件完整性与正式发行身份 | [版本校验指南](./release-verification.md) |
 
 如果问题跨越多个组件，优先从**第一个明确失败点**开始。例如 DataFactory 已成功而 Training 启动失败，应先看 Training，而不是重新排查已经成功的数据准备流程。
 

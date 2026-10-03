@@ -1,6 +1,6 @@
-# Resonastra DataFactory 使用指南
+# Resonastra 数据准备指南（DataFactory）
 
-[项目 README](./README.md) | [快速开始](./quick-start.md) | **中文简体**
+[项目 README](./README.md) | [快速开始](./quick-start.md) | **数据准备** | [模型训练](./training.md) | [语音生成](./inference.md) | [兼容性](./compatibility.md) | [版本校验](./release-verification.md) | [English](../en/data-factory.md) | **中文简体**
 
 适用版本：**Resonastra v1.0.0**
 
@@ -689,7 +689,7 @@ f0_max_hz = 1100.0
 - 默认规则：`user_data/{speaker_name}_factory`；
 - 如果 DataFactory 使用了自定义工作目录，Training 中填写同一个目录。
 
-DataFactory 只负责把路线需要的数据准备到可训练状态；epochs、batch_size、模型检查点、Active Best 等属于 [Training Guide](./training.md)。
+DataFactory 只负责把路线需要的数据准备到可训练状态；epochs、batch_size、模型检查点、Active Best 等属于 [模型训练指南（Training）](./training.md)。
 
 ---
 
@@ -725,6 +725,6 @@ Inference
 相关文档：
 
 - [快速开始](./quick-start.md)
-- [Training Guide](./training.md)
-- [Inference Guide](./inference.md)
-- [Compatibility Guide](./compatibility.md)
+- [模型训练指南（Training）](./training.md)
+- [语音生成指南（Inference）](./inference.md)
+- [兼容性指南](./compatibility.md)
