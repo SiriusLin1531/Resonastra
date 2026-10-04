@@ -32,6 +32,13 @@ Resonastra is a local voice training and text-to-speech toolkit for Windows, cov
 - **Quality Evaluation** — Optional DNSMOS, Speaker Similarity, and WER/CER metrics.
 - **Offline Workflow** — Includes the local runtime and major dependencies, with no cloud service required for the core workflow.
 
+## Usage Notice & Disclaimer
+
+- Resonastra's original source code is licensed under the **MIT License**. Third-party code, models, runtime components, and other assets remain subject to their respective license terms. See `LICENSE` and `THIRD_PARTY_NOTICES.md` for complete license and copyright information.
+- Before using training speech, reference audio, or other input material, make sure you have the necessary rights, licenses, or authorization, and comply with applicable laws, regulations, and relevant platform rules.
+- Users are responsible for how generated audio is used, published, and distributed. Do not use this project for unauthorized impersonation, fraud, deception, harassment, or other unlawful purposes.
+- This software is provided **"AS IS"** as described in `LICENSE`, without additional warranties. The formal license files in the repository govern the applicable license terms.
+
 ## Download
 
 ### Latest Stable Release · Resonastra v1.0.0
@@ -84,6 +91,21 @@ Text-to-Speech
     ↓
 Generated Audio
 ```
+
+## Model Stack
+
+The default Resonastra v1.0.0 speech-generation pipeline consists of Stage1, Stage2, and a Vocoder:
+
+| Component | Model | Role | Base training data | Base model parameters | Few-shot trainable parameters |
+| --- | --- | --- | --- | ---: | ---: |
+| Stage1 | GPT-SoVITS v2 Stage1 | text / linguistic representation → semantic representation | 2.5k hours | ≈77.61M | ≈13.13M |
+| Stage2 | Resonastra Stage2 v6.5 | semantic / content representation → acoustic representation | approximately 100 hours of Mandarin Chinese speech | ≈196.79M | ≈4.07M |
+| Vocoder | HiFi-GAN Universal V1 | acoustic representation → waveform | upstream pretrained | — | not exposed for user training in v1.0.0 |
+
+> **Notes:**
+> - "Base training data" refers to the data scale used during pretraining or base-model training, not the amount of data a user needs to prepare for Few-shot adaptation. The Stage1 2.5k-hour figure comes from GPT-SoVITS upstream public information and is not part of the Resonastra Stage2 training dataset.
+> - Stage2 ≈196.79M is the base-model parameter count. The current Few-shot path adds reference-style, LoRA, and other adaptation modules; the complete training graph is ≈200.85M parameters, of which ≈4.07M (≈2.02%) are trainable while the remainder stay frozen.
+> - The public default Voice Profile in Resonastra v1.0.0 is formally validated for the Chinese (zh) workflow. Other language capabilities available in upstream GPT-SoVITS do not automatically constitute officially supported Resonastra v1.0.0 workflows.
 
 ## System Requirements
 
@@ -157,8 +179,6 @@ Speech
 ```
 
 The current version retains the GPT-SoVITS v2 text frontend and Stage1, while Resonastra Stage2 handles downstream acoustic modeling for speech generation.
-
-More detailed model and system architecture documentation will be provided separately.
 
 ## Acknowledgements
 

@@ -32,6 +32,13 @@ Resonastra 是一个面向 Windows 的本地语音训练与文本转语音工具
 - **质量评估** — 支持 DNSMOS、Speaker Similarity 与 WER/CER 等可选指标。
 - **离线工作流** — 整合本地运行环境与主要依赖，核心流程无需云端服务。
 
+## 使用须知与免责声明
+
+- Resonastra 自有源代码采用 **MIT License**；第三方代码、模型、运行时组件及其他资产仍遵循各自的许可条款。完整许可与版权信息请参阅 `LICENSE` 和 `THIRD_PARTY_NOTICES.md`。
+- 使用训练语音、参考音频或其他输入素材前，请确认已取得必要的使用权、许可或授权，并遵守适用的法律法规与相关平台规则。
+- 用户应对生成音频的使用、发布与传播自行负责。请勿将本项目用于未经授权的身份冒用、欺诈、误导、骚扰或其他违法用途。
+- 本软件按 `LICENSE` 中所述以 **“AS IS”** 方式提供，不提供额外担保。详细许可条款以仓库中的正式许可文件为准。
+
 ## 下载
 
 ### 最新稳定版本 · Resonastra v1.0.0
@@ -84,6 +91,21 @@ Inference
     ↓
 生成语音
 ```
+
+## 模型组成
+
+Resonastra v1.0.0 的默认语音生成链路由 Stage1、Stage2 与 Vocoder 共同组成：
+
+| 组件 | 模型 | 作用 | 基础训练数据 | 基础模型参数 | Few-shot 可训练参数 |
+| --- | --- | --- | --- | ---: | ---: |
+| Stage1 | GPT-SoVITS v2 Stage1 | 文本 / 语言表示 → 语义表示 | 2.5k 小时 | ≈77.61M | ≈13.13M |
+| Stage2 | Resonastra Stage2 v6.5 | 语义 / 内容表示 → 声学表示 | 约 100 小时中文语音 | ≈196.79M | ≈4.07M |
+| Vocoder | HiFi-GAN Universal V1 | 声学表示 → 波形 | 上游预训练（upstream pretrained） | — | v1.0.0 不开放用户训练 |
+
+> **说明：**
+> - “基础训练数据”指所提供基础模型在预训练或基础训练阶段使用的数据规模，并不是用户进行 Few-shot 适配时需要准备的数据量。Stage1 的约 2.5k 小时来自 GPT-SoVITS 上游公开信息，不属于 Resonastra Stage2 训练数据。
+> - Stage2 的 ≈196.79M 为基础模型参数量。当前 Few-shot 会额外挂载 reference-style、LoRA 等适配模块；完整训练图约为 ≈200.85M 参数，其中 ≈4.07M（≈2.02%）可训练，其余保持冻结。
+> - Resonastra v1.0.0 当前公开默认 Voice Profile 以中文（zh）工作流为正式验证范围；上游 GPT-SoVITS 的其他语言能力不自动等同于 Resonastra v1.0.0 的正式支持范围。
 
 ## 系统要求
 
@@ -158,7 +180,6 @@ Vocoder
 
 当前版本保留 GPT-SoVITS v2 文本前端与 Stage1，并使用 Resonastra Stage2 声学模型完成后续语音生成。
 
-更完整的模型与系统架构将在技术文档中说明。
 
 ## 致谢
 
